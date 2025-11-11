@@ -1,0 +1,202 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------- */
+/* --- CUSTOM THEME: COLORS, TYPOGRAPHY, GEOMETRY --- */
+/* ---------------------------------------------------------------- */
+@theme {
+  /* Core Colors */
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-transparent: transparent;
+
+  /* Neutral Palette */
+  --color-neutral-50: #f7f7f7;
+  --color-neutral-100: #e5e5e5;
+  --color-neutral-200: #cccccc;
+  --color-neutral-300: #a3a3a3;
+  --color-neutral-400: #737373;
+  --color-neutral-500: #525252;
+  --color-neutral-600: #404040;
+  --color-neutral-700: #303030;
+  --color-neutral-800: #363636;
+  --color-neutral-900: #282828;
+  --color-neutral-950: #1a1a1a;
+
+  /* Semantic Backgrounds & Surfaces */
+  --color-background: var(--color-neutral-900);
+  --color-surface: var(--color-neutral-800);
+  --color-accent-border: var(--color-neutral-600);
+
+  /* Text Colors */
+  --color-text-primary: var(--color-neutral-50);
+  --color-text-secondary: var(--color-neutral-100);
+  --color-text-muted: var(--color-neutral-300);
+  --color-text-inverse: var(--color-white);
+
+  /* Primary Accent */
+  --color-accent-500: #64748b;
+  --color-accent-600: #475569;
+  --color-accent-700: #334155;
+
+  /* Status Colors */
+  --color-green-700: rgb(21 128 61);
+  --color-yellow-700: rgb(161 98 7);
+  --color-red-700: rgb(153 27 27);
+  --color-indigo-700: rgb(67 56 202);
+
+  /* Typography */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: Consolas, Menlo, monospace;
+
+  /* Geometry: no border-radius for strict flat look */
+  --rounded-none: 0;
+  --rounded-sm: 0;
+  --rounded: 0;
+  --rounded-md: 0;
+  --rounded-lg: 0;
+  --rounded-xl: 0;
+  --rounded-2xl: 0;
+
+  /* Shadows: None for flat aesthetic */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-none: none;
+}
+
+/* -------------------------------------------------------------- */
+/* --- BASE STYLES --- */
+/* -------------------------------------------------------------- */
+@layer base {
+  html {
+    @apply bg-background;
+  }
+
+  body {
+    @apply bg-background text-text-primary font-sans leading-relaxed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-text-inverse m-2;
+  }
+
+  p {
+    @apply text-text-secondary m-2;
+  }
+
+  a {
+    @apply text-blue-500 no-underline transition-colors;
+  }
+  a:hover {
+    @apply text-blue-700 underline;
+  }
+
+  button {
+    @apply bg-accent-600 text-text-inverse px-4 py-2 rounded-none border-none cursor-pointer transition-colors;
+  }
+  button:hover {
+    @apply bg-accent-700;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    @apply bg-surface border border-accent-border text-text-primary px-2 py-1 rounded-none focus:border-blue-500 focus:ring-0 transition-colors;
+  }
+}
+
+/* -------------------------------------------------------------- */
+/* --- COMPONENTS --- */
+/* -------------------------------------------------------------- */
+@layer components {
+  /* Cards */
+  .card {
+    @apply bg-surface border border-accent-border p-4 rounded-none shadow-none;
+  }
+
+  /* Tables */
+  table {
+    @apply w-full border-collapse bg-surface text-text-primary;
+  }
+
+  thead {
+    @apply bg-neutral-700 text-text-primary;
+  }
+
+  th,
+  td {
+    @apply border border-accent-border px-4 py-2 text-left;
+  }
+
+  tr:nth-child(even) {
+    @apply bg-neutral-800;
+  }
+
+  tr.formal-table-row:hover {
+    @apply bg-neutral-600;
+  }
+
+  /* Header */
+  header {
+    @apply sticky top-0 z-50 bg-surface p-6 shadow-md flex flex-col items-center justify-center text-center;
+  }
+  .site-header__title {
+    @apply text-4xl md:text-5xl font-extrabold text-text-inverse mb-2;
+  }
+  .site-header__subtitle {
+    @apply text-lg md:text-xl font-semibold text-text-secondary;
+  }
+
+  /* Layout */
+  .layout {
+    @apply flex flex-col min-h-screen bg-background text-text-primary font-sans transition-colors duration-300;
+  }
+
+  .layout__main {
+    @apply flex-1 flex flex-col justify-center items-center p-6 md:p-12 gap-6;
+  }
+
+  footer {
+    @apply bg-surface p-4 text-center text-text-secondary mt-auto shadow-inner;
+  }
+
+  /* Offer Page */
+  .offer-page {
+    @apply p-6;
+  }
+  .offer-page__title {
+    @apply text-2xl font-bold mb-4;
+  }
+  .offer-page__welcome {
+    @apply text-text-secondary mb-6;
+  }
+  .offer-page__table {
+    @apply mb-6;
+  }
+  .offer-page__actions {
+    @apply flex gap-4;
+  }
+  /* Buttons */
+  .btn {
+    @apply bg-accent-600 text-text-inverse px-4 py-2 rounded-none border-none cursor-pointer transition-colors inline-block text-center;
+  }
+  .btn:hover {
+    @apply bg-accent-700;
+  }
+}
+
+/* -------------------------------------------------------------- */
+/* --- UTILITIES --- */
+/* -------------------------------------------------------------- */
+@layer utilities {
+  .flex-center {
+    @apply flex justify-center items-center;
+  }
+}

@@ -1,0 +1,23 @@
+npx nuxi init oil-app
+cd oil-app
+
+npx pnpm install
+npm run dev
+
+-----tailwind
+npm install -g pnpm
+npx pnpm install tailwindcss @tailwindcss/vite
+--
+import tailwindcss from "@tailwindcss/vite";
+
+export default defineNuxtConfig({
+  compatibilityDate: "2025-07-15",
+  devtools: { enabled: true },
+  vite: {
+    plugins: [
+      tailwindcss(),  ----
+    ],
+  },
+});
+
+@import "tailwindcss"; --- in css

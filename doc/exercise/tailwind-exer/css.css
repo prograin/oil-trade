@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+/** We can see more than these in site 
+--color
+--shadow 
+*/
+
+@theme {
+  --color-black: #000000;
+  --color-white: #ffffff;
+
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-none: none;
+}
+
+/* For avoiding adding a lot of css class in pages or components */
+@layer base {
+  body {
+    @apply bg-background color-neutral-50;
+  }
+  input[type="text"],
+  textarea {
+    @apply bg-background border border-accent-border text-neutral-50 focus:border-blue-500 focus:ring-0 transition-colors;
+  }
+  html {
+    @apply bg-background;
+  }
+}
+
+@layer components {
+  .formal-table-row:hover {
+    @apply bg-neutral-700;
+  }
+}
+
+@utility flex-center {
+  @apply flex justify-center items-center;
+}
+/* <P class="flex justify-center items-center">   --->   <P class="flex-center"> */

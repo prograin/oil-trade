@@ -1,0 +1,12 @@
+BEM Basics
+
+Block → The main component or section
+Example: layout, offer-page, header
+
+Element → A child or part of the block
+Written as block__element
+Example: layout__main → the <main> inside the layout block
+
+Modifier → A variation or state of a block/element
+Written as block--modifier
+Example: button--primary → a primary version of a button
