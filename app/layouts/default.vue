@@ -1,3 +1,44 @@
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from "vue";
+import { useRouter } from "vue-router";
+import {
+  TruckIcon,
+  PlusIcon,
+  FuelIcon,
+  MenuIcon,
+  CompassIcon,
+  LogOutIcon,
+  ChartLine,
+  HomeIcon,
+  LogInIcon,
+  UserIcon,
+} from "lucide-vue-next";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+
+const offerMenuRef = ref(null);
+const mainMenuRef = ref(null);
+
+const offerMenuOpen = ref(false);
+const mainMenuOpen = ref(false);
+
+const toggleOfferMenu = () => (offerMenuOpen.value = !offerMenuOpen.value);
+const toggleMainMenu = () => (mainMenuOpen.value = !mainMenuOpen.value);
+
+const handleClickOutside = (event) => {
+  if (offerMenuRef.value && !offerMenuRef.value.contains(event.target)) {
+    offerMenuOpen.value = false;
+  }
+  if (mainMenuRef.value && !mainMenuRef.value.contains(event.target)) {
+    mainMenuOpen.value = false;
+  }
+};
+
+onMounted(() => document.addEventListener("click", handleClickOutside));
+onBeforeUnmount(() => document.removeEventListener("click", handleClickOutside));
+</script>
+
 <template>
   <div class="layout">
     <!-- Header -->
@@ -26,22 +67,21 @@
         <!-- Dashboard -->
         <div class="flex items-center space-x-4" v-else-if="route.path.startsWith('/dashboard')">
           <!-- Add Menu -->
-          <div class="layout-header-menu group">
-            <button title="Add">
+          <div class="layout-header-menu" ref="offerMenuRef">
+            <button @click="toggleOfferMenu" title="Add">
               <PlusIcon class="w-6 h-6" />
             </button>
-            <div>
+            <div v-show="offerMenuOpen">
               <NuxtLink to="/add/offer" class="nav-link rounded-t"> <FuelIcon class="w-6 h-6" />Offer </NuxtLink>
               <NuxtLink to="/add/offer" class="nav-link rounded-b"> <TruckIcon class="w-6 h-6" />Demand </NuxtLink>
-              <!-- <button class="rounded-b"><TruckIcon /> Demand</button> -->
             </div>
           </div>
 
-          <div class="layout-header-menu group">
-            <button title="Menu">
+          <div class="layout-header-menu" ref="mainMenuRef">
+            <button @click="toggleMainMenu" title="Menu">
               <MenuIcon class="w-6 h-6" />
             </button>
-            <div>
+            <div v-show="mainMenuOpen">
               <button class="rounded-t"><ChartLine /> Market Trends</button>
               <button class=""><CompassIcon /> Explore</button>
               <button class="rounded-b"><LogOutIcon /> Logout</button>
@@ -71,23 +111,6 @@
     </footer>
   </div>
 </template>
-
-<script setup>
-import {
-  TruckIcon,
-  PlusIcon,
-  FuelIcon,
-  MenuIcon,
-  CompassIcon,
-  LogOutIcon,
-  ChartLine,
-  HomeIcon,
-  LogInIcon,
-  UserIcon,
-} from "lucide-vue-next";
-import { useRoute } from "vue-router";
-const route = useRoute();
-</script>
 
 <style scoped>
 @reference "tailwindcss";
@@ -120,7 +143,7 @@ const route = useRoute();
   @apply text-yellow-400 text-2xl p-2 rounded hover:bg-gray-800 transition;
 }
 .layout-header-menu > div {
-  @apply absolute right-0  mt-2 w-44 bg-gray-800 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all;
+  @apply absolute right-0  mt-2 w-44 bg-gray-800 rounded-lg shadow-lg transition-all;
 }
 .layout-header-menu > div > button {
   @apply w-full text-left px-4 py-2 hover:bg-yellow-400 hover:text-black transition flex items-center gap-2;
