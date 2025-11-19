@@ -21,3 +21,9 @@ export default defineNuxtConfig({
 });
 
 @import "tailwindcss"; --- in css
+
+----------sass
+npx pnpm add -D sass sass-loader@10 
+
+---------for icon
+npx pnpm install lucide-vue-next

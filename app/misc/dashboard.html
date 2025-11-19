@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Oil Market Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  </head>
+  <body class="bg-gray-900 text-gray-100 font-sans min-h-screen flex flex-col">
+    
+        <!-- Header -->
+    <header class="bg-black shadow-md sticky top-0 z-50">
+      <div class="container mx-auto flex justify-between items-center p-4">
+        <h1 class="text-2xl font-bold text-yellow-400">Oil Market</h1>
+
+        <div class="hidden md:flex items-center space-x-4">
+          <!-- Add Button -->
+          <div class="relative group">
+            <button class="text-yellow-400 text-2xl p-2 rounded hover:bg-gray-800 transition" title="Add">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+            <div class="absolute right-0 mt-2 w-44 bg-gray-800 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all">
+              <button id="addOfferBtn" class="w-full text-left px-4 py-2 hover:bg-yellow-400 hover:text-black transition flex items-center gap-2 rounded-t-lg">
+                <i class="fa-solid fa-gas-pump"></i> Offer
+              </button>
+              <button id="addDemandBtn" class="w-full text-left px-4 py-2 hover:bg-yellow-400 hover:text-black transition flex items-center gap-2 rounded-b-lg">
+                <i class="fa-solid fa-truck"></i> Demand
+              </button>
+            </div>
+          </div>
+
+          <!-- Other Menu -->
+          <div class="relative group">
+            <button class="text-yellow-400 px-4 py-2 rounded hover:bg-gray-800 transition flex items-center gap-2">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all">
+              <a href="#" class="block px-4 py-2 hover:bg-yellow-400 hover:text-black transition flex items-center gap-2 rounded-t-lg">
+                <i class="fa-solid fa-chart-line"></i> Market Trends
+              </a>
+              <a href="#" class="block px-4 py-2 hover:bg-yellow-400 hover:text-black transition flex items-center gap-2">
+                <i class="fa-solid fa-compass"></i> Explore
+              </a>
+              <a href="#" class="block px-4 py-2 hover:bg-red-600 hover:text-white transition flex items-center gap-2 rounded-b-lg">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button class="md:hidden text-yellow-400 text-2xl"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </header>
+
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 space-y-12">
+      <!-- Quick Overview / Stats -->
+      <section class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="bg-gray-800 p-6 rounded shadow hover:shadow-xl transition flex flex-col items-center">
+          <p class="text-gray-400 text-sm uppercase">Total Offers</p>
+          <p id="totalOffers" class="text-3xl font-bold text-yellow-400">5</p>
+        </div>
+        <div class="bg-gray-800 p-6 rounded shadow hover:shadow-xl transition flex flex-col items-center">
+          <p class="text-gray-400 text-sm uppercase">Total Demands</p>
+          <p id="totalDemands" class="text-3xl font-bold text-yellow-400">3</p>
+        </div>
+        <div class="bg-gray-800 p-6 rounded shadow hover:shadow-xl transition flex flex-col items-center">
+          <p class="text-gray-400 text-sm uppercase">Active Trades</p>
+          <p class="text-3xl font-bold text-yellow-400">2</p>
+        </div>
+      </section>
+
+      <!-- Refined Tabs -->
+      <section class="max-w-6xl mx-auto bg-gray-800 rounded p-6 shadow relative">
+        <div class="flex border-b border-gray-700 mb-6 space-x-4">
+          <button class="tab-button px-6 py-2 rounded-t text-yellow-400 bg-gray-900 font-semibold focus:outline-none transition" data-tab="offers">
+            Offers
+          </button>
+          <button class="tab-button px-6 py-2 rounded-t text-gray-400 hover:text-yellow-400 transition focus:outline-none" data-tab="demands">
+            Demands
+          </button>
+        </div>
+
+        <!-- Offers -->
+        <div id="offers" class="tab-content space-y-4 relative">
+          <div class="bg-gray-900 rounded shadow hover:shadow-lg transition overflow-hidden">
+            <button class="w-full text-left px-4 py-3 flex justify-between items-center focus:outline-none">
+              <span class="font-semibold text-yellow-400">Crude Oil Offer</span>
+              <span class="text-gray-400 text-sm">Qty: 200 barrels | $72/barrel</span>
+            </button>
+            <div class="px-4 pb-3 hidden flex gap-2">
+              <button class="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-500 transition text-sm">Edit</button>
+              <button class="bg-red-600 px-3 py-1 rounded hover:bg-red-700 transition text-sm">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Demands -->
+        <div id="demands" class="tab-content hidden space-y-4 relative">
+          <div class="bg-gray-900 rounded shadow hover:shadow-lg transition overflow-hidden">
+            <button class="w-full text-left px-4 py-3 flex justify-between items-center focus:outline-none">
+              <span class="font-semibold text-yellow-400">Crude Oil Demand</span>
+              <span class="text-gray-400 text-sm">Qty: 150 barrels | Region: Europe</span>
+            </button>
+            <div class="px-4 pb-3 hidden flex gap-2">
+              <button class="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-500 transition text-sm">Edit</button>
+              <button class="bg-red-600 px-3 py-1 rounded hover:bg-red-700 transition text-sm">Delete</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+        <!-- Demands -->
+        <div id="demands" class="tab-content hidden space-y-4">
+          <div class="bg-gray-900 rounded shadow hover:shadow-lg transition overflow-hidden">
+            <button class="w-full text-left px-4 py-3 flex justify-between items-center focus:outline-none">
+              <span class="font-semibold text-yellow-400">Crude Oil Demand</span>
+              <span class="text-gray-400 text-sm">Qty: 150 barrels | Region: Europe</span>
+            </button>
+            <div class="px-4 pb-3 hidden flex gap-2">
+              <button class="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-500 transition text-sm">
+                Edit
+              </button>
+              <button class="bg-red-600 px-3 py-1 rounded hover:bg-red-700 transition text-sm">Delete</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+      <div class="bg-gray-800 p-6 rounded w-full max-w-md relative">
+        <h2 id="modalTitle" class="text-xl font-semibold text-yellow-400 mb-4">Add Offer</h2>
+        <form id="modalForm" class="space-y-4">
+          <div>
+            <label class="block text-gray-300 text-sm mb-1">Title</label>
+            <input type="text" name="title" class="w-full p-2 rounded text-black" required />
+          </div>
+          <div>
+            <label class="block text-gray-300 text-sm mb-1">Quantity (barrels)</label>
+            <input type="number" name="quantity" class="w-full p-2 rounded text-black" required />
+          </div>
+          <div>
+            <label class="block text-gray-300 text-sm mb-1">Price per Barrel ($)</label>
+            <input type="number" name="price" class="w-full p-2 rounded text-black" required />
+          </div>
+          <div id="regionField" class="hidden">
+            <label class="block text-gray-300 text-sm mb-1">Region</label>
+            <input type="text" name="region" class="w-full p-2 rounded text-black" />
+          </div>
+          <div class="flex justify-end gap-2">
+            <button type="button" id="closeModal" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 transition">
+              Cancel
+            </button>
+            <button type="submit" class="px-4 py-2 rounded bg-yellow-400 text-black hover:bg-yellow-500 transition">
+              Add
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // Tabs
+      const buttons = document.querySelectorAll(".tab-button");
+      const contents = document.querySelectorAll(".tab-content");
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          buttons.forEach((b) => b.classList.remove("bg-gray-900", "text-yellow-400"));
+          buttons.forEach((b) => b.classList.add("text-gray-400"));
+          btn.classList.add("bg-gray-900", "text-yellow-400");
+          btn.classList.remove("text-gray-400");
+
+          const tab = btn.dataset.tab;
+          contents.forEach((c) => c.classList.add("hidden"));
+          document.getElementById(tab).classList.remove("hidden");
+        });
+      });
+
+      // Collapsible cards
+      function makeCardsCollapsible() {
+        const cards = document.querySelectorAll(".tab-content > div");
+        cards.forEach((card) => {
+          const btn = card.querySelector("button");
+          const actions = card.querySelector("div");
+          btn.addEventListener("click", () => {
+            actions.classList.toggle("hidden");
+          });
+        });
+      }
+      makeCardsCollapsible();
+
+      // Modal logic
+      const modal = document.getElementById("modal");
+      const modalTitle = document.getElementById("modalTitle");
+      const regionField = document.getElementById("regionField");
+      const addOfferBtn = document.getElementById("addOfferBtn");
+      const addDemandBtn = document.getElementById("addDemandBtn");
+      const closeModal = document.getElementById("closeModal");
+      const modalForm = document.getElementById("modalForm");
+
+      function openModal(type) {
+        modal.classList.remove("hidden");
+        if (type === "offer") {
+          modalTitle.textContent = "Add Offer";
+          regionField.classList.add("hidden");
+        } else {
+          modalTitle.textContent = "Add Demand";
+          regionField.classList.remove("hidden");
+        }
+        modalForm.dataset.type = type;
+      }
+
+      addOfferBtn.addEventListener("click", () => openModal("offer"));
+      addDemandBtn.addEventListener("click", () => openModal("demand"));
+      closeModal.addEventListener("click", () => modal.classList.add("hidden"));
+
+      modalForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const type = modalForm.dataset.type;
+        const data = Object.fromEntries(new FormData(modalForm).entries());
+
+        const newCard = document.createElement("div");
+        newCard.className = "bg-gray-900 rounded-xl shadow hover:shadow-lg transition overflow-hidden";
+        newCard.innerHTML = `
+        <button class="w-full text-left px-4 py-3 flex justify-between items-center focus:outline-none">
+          <span class="font-semibold text-yellow-400">${data.title}</span>
+          <span class="text-gray-400 text-sm">Qty: ${data.quantity} barrels${
+          type === "demand" ? " | Region: " + data.region : ""
+        } | $${data.price}/barrel</span>
+        </button>
+        <div class="px-4 pb-3 hidden flex gap-2">
+          <button class="bg-yellow-400 text-black px-3 py-1 rounded hover:bg-yellow-500 transition text-sm">Edit</button>
+          <button class="bg-red-600 px-3 py-1 rounded hover:bg-red-700 transition text-sm">Delete</button>
+        </div>
+      `;
+        document.getElementById(type === "offer" ? "offers" : "demands").appendChild(newCard);
+        makeCardsCollapsible();
+
+        if (type === "offer") {
+          document.getElementById("totalOffers").textContent =
+            parseInt(document.getElementById("totalOffers").textContent) + 1;
+        } else {
+          document.getElementById("totalDemands").textContent =
+            parseInt(document.getElementById("totalDemands").textContent) + 1;
+        }
+
+        modal.classList.add("hidden");
+        modalForm.reset();
+      });
+    </script>
+  </body>
+</html>

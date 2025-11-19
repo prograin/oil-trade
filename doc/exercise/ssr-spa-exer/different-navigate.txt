@@ -1,0 +1,5 @@
+<a href="/..">                              reloading the whole page
+<link to="/..">                             no reload
+route = useRouter ; route.push("/...")      no reload - vue
+navigate = useNavigaet ; navigate("/...")   no reload - react
+

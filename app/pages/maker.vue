@@ -13,7 +13,6 @@
 </template>
 
 <script lang="ts" setup>
-  import OfferTable from '~/components/OfferTable.vue';
   import { ref,onMounted } from 'vue';
   import { useRouter } from 'vue-router';
 
