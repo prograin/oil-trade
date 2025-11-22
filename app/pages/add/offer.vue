@@ -5,7 +5,7 @@
 
       <form class="space-y-6 space-x-3">
         <!-- Document Type -->
-        <div class="flex flex-col">
+        <div class="flex-item-field">
           <label class="block text-gray-300 text-sm mb-1">Document Type</label>
           <select class="p-2 rounded text-black w-full bg-gray-100">
             <optgroup label="Buy-Side (Request)">
@@ -26,7 +26,7 @@
         </div>
 
         <!-- Product -->
-        <div class="flex flex-col">
+        <div class="flex-item-field">
           <label class="text-gray-300 text-sm mb-1">Product</label>
           <select class="p-2 rounded text-black w-full bg-gray-100">
             <option>Light Crude Oil</option>
@@ -36,7 +36,7 @@
         </div>
 
         <!-- Specification -->
-        <div class="flex flex-col sm:flex-row gap-4">
+        <div class="flex-item-field sm:flex-row gap-4">
           <div class="flex-1 flex flex-col">
             <label class="text-gray-300 text-sm mb-1">API</label>
             <input
@@ -61,7 +61,7 @@
         </div>
 
         <!-- Quantity and Deal Type -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 mx-0 sm:grid-cols-2 gap-4">
           <div class="flex flex-col">
             <label class="text-gray-300 text-sm mb-1">Quantity</label>
             <select class="p-2 rounded text-black w-full bg-gray-100">
@@ -85,7 +85,7 @@
         </div>
 
         <!-- Delivery Term -->
-        <div class="flex flex-col gap-2">
+        <div class="flex-item-field gap-2">
           <label class="text-gray-300 text-sm">Delivery Term</label>
           <select class="p-2 rounded text-black w-full bg-gray-100 bg-gray-100">
             <option>FOB</option>
@@ -104,7 +104,7 @@
         </div>
 
         <!-- Price -->
-        <div class="flex flex-col justify-start gap-2">
+        <div class="flex-item-field justify-start gap-2">
           <span class="text-gray-300">Benchmark-based (Platts Dated Brent ± differential)</span>
           <input
             type="number"
@@ -116,7 +116,7 @@
         </div>
 
         <!-- Payment Term, Operation Cost, Inspection -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 mx-0 justify-center sm:grid-cols-3 gap-4">
           <div class="flex flex-col">
             <label class="text-gray-300 text-sm mb-1">Payment Term</label>
             <select class="p-2 rounded text-black w-full bg-gray-100">
@@ -135,7 +135,7 @@
               <option>Shared operation costs (50/50)</option>
             </select>
           </div>
-          <div class="flex flex-col">
+          <div class="flex flex-col mx-0">
             <label class="text-gray-300 text-sm mb-1">Inspection</label>
             <select class="p-2 rounded text-black w-full bg-gray-100">
               <option>Independent international surveyor (SGS)</option>
@@ -147,13 +147,13 @@
         </div>
 
         <!-- Validity -->
-        <div class="flex flex-col">
+        <div class="flex-item-field">
           <label class="text-gray-300 text-sm mb-1">Validity</label>
           <input type="date" class="p-2 rounded text-black w-full bg-gray-100" />
         </div>
 
         <!-- Buttons -->
-        <div class="flex flex-col sm:flex-row justify-end gap-2 mt-4">
+        <div class="flex flex-row justify-end gap-2 mt-7">
           <button type="button" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 transition w-full sm:w-auto">
             Cancel
           </button>
@@ -169,7 +169,13 @@
   </main>
 </template>
 
-<style scoped></style>
+<style scoped>
+@reference "tailwindcss";
+
+.flex-item-field {
+  @apply flex flex-col mx-0;
+}
+</style>
 
 <script lang="ts" setup></script>
 
