@@ -37,6 +37,14 @@ const handleClickOutside = (event) => {
 
 onMounted(() => document.addEventListener("click", handleClickOutside));
 onBeforeUnmount(() => document.removeEventListener("click", handleClickOutside));
+
+watch(
+  () => route.path,
+  () => {
+    offerMenuOpen.value = false;
+    mainMenuOpen.value = false;
+  }
+);
 </script>
 
 <template>
