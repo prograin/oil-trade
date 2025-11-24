@@ -1,50 +1,39 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
-import { useRouter } from "vue-router";
-import {
-  TruckIcon,
-  PlusIcon,
-  FuelIcon,
-  MenuIcon,
-  CompassIcon,
-  LogOutIcon,
-  ChartLine,
-  HomeIcon,
-  LogInIcon,
-  UserIcon,
-} from "lucide-vue-next";
-import { useRoute } from "vue-router";
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter } from 'vue-router'
+import { TruckIcon, PlusIcon, FuelIcon, MenuIcon, CompassIcon, LogOutIcon, ChartLine, HomeIcon, LogInIcon, UserIcon } from 'lucide-vue-next'
+import { useRoute } from 'vue-router'
 
-const route = useRoute();
+const route = useRoute()
 
-const offerMenuRef = ref(null);
-const mainMenuRef = ref(null);
+const offerMenuRef = ref(null)
+const mainMenuRef = ref(null)
 
-const offerMenuOpen = ref(false);
-const mainMenuOpen = ref(false);
+const offerMenuOpen = ref(false)
+const mainMenuOpen = ref(false)
 
-const toggleOfferMenu = () => (offerMenuOpen.value = !offerMenuOpen.value);
-const toggleMainMenu = () => (mainMenuOpen.value = !mainMenuOpen.value);
+const toggleOfferMenu = () => (offerMenuOpen.value = !offerMenuOpen.value)
+const toggleMainMenu = () => (mainMenuOpen.value = !mainMenuOpen.value)
 
 const handleClickOutside = (event) => {
   if (offerMenuRef.value && !offerMenuRef.value.contains(event.target)) {
-    offerMenuOpen.value = false;
+    offerMenuOpen.value = false
   }
   if (mainMenuRef.value && !mainMenuRef.value.contains(event.target)) {
-    mainMenuOpen.value = false;
+    mainMenuOpen.value = false
   }
-};
+}
 
-onMounted(() => document.addEventListener("click", handleClickOutside));
-onBeforeUnmount(() => document.removeEventListener("click", handleClickOutside));
+onMounted(() => document.addEventListener('click', handleClickOutside))
+onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside))
 
 watch(
   () => route.path,
   () => {
-    offerMenuOpen.value = false;
-    mainMenuOpen.value = false;
-  }
-);
+    offerMenuOpen.value = false
+    mainMenuOpen.value = false
+  },
+)
 </script>
 
 <template>
@@ -91,7 +80,7 @@ watch(
             </button>
             <div v-show="mainMenuOpen">
               <button class="rounded-t"><ChartLine /> Market Trends</button>
-              <button class=""><CompassIcon /> Explore</button>
+              <NuxtLink to="/explore" class="nav-link"><CompassIcon /> Explore</NuxtLink>
               <button class="rounded-b"><LogOutIcon /> Logout</button>
             </div>
           </div>
