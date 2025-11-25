@@ -1,5 +1,5 @@
 <template>
-  <main id="offerModal" class="flex items-center justify-center p-4 sm:p-6">
+  <main id="offerModal" class="flex max-w-full items-center justify-center p-4 sm:p-6 w-full">
     <div class="bg-gray-800 p-8 rounded relative max-w-2xl">
       <h2 class="font-semibold text-yellow-400 mb-4">Add Offer</h2>
 
@@ -39,24 +39,11 @@
         <div class="flex-item-field sm:flex-row gap-4">
           <div class="flex-1 flex flex-col">
             <label class="text-gray-300 text-sm mb-1">API</label>
-            <input
-              type="number"
-              step="0.1"
-              min="0"
-              placeholder="34.0"
-              class="p-2 rounded text-black w-full bg-gray-100"
-            />
+            <input type="number" step="0.1" min="0" placeholder="34.0" class="p-2 rounded text-black w-full bg-gray-100" />
           </div>
           <div class="flex-1 flex flex-col">
             <label class="text-gray-300 text-sm mb-1">Sulfur</label>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              max="5"
-              placeholder="1.2"
-              class="p-2 rounded text-black w-full bg-gray-100"
-            />
+            <input type="number" step="0.01" min="0" max="5" placeholder="1.2" class="p-2 rounded text-black w-full bg-gray-100" />
           </div>
         </div>
 
@@ -106,13 +93,7 @@
         <!-- Price -->
         <div class="flex-item-field justify-start gap-2">
           <span class="text-gray-300">Benchmark-based (Platts Dated Brent ± differential)</span>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder="2.50 USD per BBL"
-            class="p-2 rounded text-black w-full bg-gray-100"
-          />
+          <input type="number" step="0.01" min="0" placeholder="2.50 USD per BBL" class="p-2 rounded text-black w-full bg-gray-100" />
         </div>
 
         <!-- Payment Term, Operation Cost, Inspection -->
@@ -154,13 +135,8 @@
 
         <!-- Buttons -->
         <div class="flex flex-row justify-end gap-2 mt-7">
-          <button type="button" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 transition w-full sm:w-auto">
-            Cancel
-          </button>
-          <button
-            type="submit"
-            class="px-4 py-2 rounded bg-yellow-400 text-black hover:bg-yellow-500 transition w-full sm:w-auto"
-          >
+          <button type="button" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-700 transition w-full sm:w-auto">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded bg-yellow-400 text-black hover:bg-yellow-500 transition w-full sm:w-auto">
             Add
           </button>
         </div>

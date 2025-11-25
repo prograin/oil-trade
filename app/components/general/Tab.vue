@@ -1,19 +1,19 @@
 <script setup>
-import { ref, reactive } from "vue";
-import { ChevronDown } from "lucide-vue-next";
-import { tabs } from "~/data/offers";
+import { ref, reactive } from 'vue'
+import { ChevronDown } from 'lucide-vue-next'
+import { tabs } from '~/data/offers'
 
-const activeTab = ref("offers");
-const openItems = reactive({});
-const openBids = reactive({});
+const activeTab = ref('offers')
+const openItems = reactive({})
+const openBids = reactive({})
 
 function toggleBids(itemId) {
-  openBids[itemId] = !openBids[itemId];
+  openBids[itemId] = !openBids[itemId]
 }
 
 function toggleItem(tabId, itemId) {
-  if (!openItems[tabId]) openItems[tabId] = {};
-  openItems[tabId][itemId] = !openItems[tabId][itemId];
+  if (!openItems[tabId]) openItems[tabId] = {}
+  openItems[tabId][itemId] = !openItems[tabId][itemId]
 }
 </script>
 
@@ -35,16 +35,16 @@ function toggleItem(tabId, itemId) {
             <h3 class="tab-item-header-titile">{{ item.title }}</h3>
             <p class="tab-item-header-subtitile">{{ item.subtitle }}</p>
           </div>
-          <ChevronDown
+          <!-- <ChevronDown
             :class="[
               'w-5 h-5 transition-transform duration-300',
               openItems[tab.id]?.[item.id] ? 'rotate-180 text-yellow-400' : 'text-gray-400',
             ]"
-          />
+          /> -->
         </div>
 
         <!-- Details -->
-        <div v-show="openItems[tab.id]?.[item.id]" class="tab-item-detail">
+        <div class="tab-item-detail">
           <div class="tab-item-detail-container">
             <div v-for="d in item.data" :key="d.label" class="tab-item-detail-data-dev">
               <span class="text-yellow-300 font-semibold">{{ d.label }}</span>
@@ -55,7 +55,7 @@ function toggleItem(tabId, itemId) {
           <!-- Bids -->
           <div v-if="item.bids && item.bids.length" class="tab-item-detail-bid bg-gray-800 rounded p-2 mt-2">
             <div @click="toggleBids(item.id)" class="bid-items-header">
-              <span>{{ openBids[item.id] ? "Hide Bids" : "Show Bids" }}</span>
+              <span>{{ openBids[item.id] ? 'Hide Bids' : 'Show Bids' }}</span>
               <ChevronDown :class="['chevron-icon', openBids[item.id] ? 'open' : 'close']" />
             </div>
 
@@ -66,7 +66,7 @@ function toggleItem(tabId, itemId) {
                   <p class="text-gray-400 text-sm">{{ bid.value }} | {{ bid.timestamp }}</p>
                 </div>
                 <button :class="['bid-item-confirm-btn ', bid.confirmed ? 'confirmed' : 'no-confirmed ']">
-                  {{ bid.confirmed ? "Confirmed" : "Confirm" }}
+                  {{ bid.confirmed ? 'Confirmed' : 'Confirm' }}
                 </button>
               </div>
             </div>
@@ -137,7 +137,7 @@ function toggleItem(tabId, itemId) {
   @apply flex flex-col space-y-2;
 }
 .tab-item-detail-data-dev {
-  @apply flex sm:flex-row flex-col gap-2 justify-between bg-gray-800 px-4 py-2 rounded shadow hover:bg-gray-600 transition;
+  @apply flex sm:flex-row flex-col gap-1 justify-between bg-gray-800 px-4 py-2 rounded shadow hover:bg-gray-600 transition;
 }
 
 .bid-item {

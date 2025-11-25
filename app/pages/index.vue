@@ -3,11 +3,8 @@
     <!-- Hero Section -->
     <section class="home-section-hero">
       <h2>Welcome to Oil Market</h2>
-      <p>
-        Track global oil demand and supply, connect buyers and sellers efficiently, and make data-driven decisions in
-        the oil industry.
-      </p>
-      <a href="#demand">Explore Market</a>
+      <p>Track global oil demand and supply, connect buyers and sellers efficiently, and make data-driven decisions in the oil industry.</p>
+      <a href="/explore">Explore Market</a>
     </section>
 
     <!-- Market Cards -->
@@ -30,8 +27,8 @@
     <section class="home-section-about">
       <h3 class="text-2xl font-bold text-yellow-400 mb-4">About Oil Market</h3>
       <p class="text-gray-300">
-        Oil Market is a platform that bridges the gap between oil suppliers and buyers. Our goal is to make oil trading
-        transparent, fast, and efficient with real-time data and user-friendly tools.
+        Oil Market is a platform that bridges the gap between oil suppliers and buyers. Our goal is to make oil trading transparent, fast,
+        and efficient with real-time data and user-friendly tools.
       </p>
     </section>
   </main>
