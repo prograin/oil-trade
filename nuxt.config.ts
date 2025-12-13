@@ -8,7 +8,7 @@ export default {
   components: true,
   devtools: { enabled: true },
   nitro: {
-    preset: 'cloudflare-durable',
+    preset: 'cloudflare_pages',
     cloudflare: {
       // This tells Nitro about the D1 binding
       d1Databases: ['DB'],
