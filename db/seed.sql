@@ -1,8 +1,8 @@
 -- seed.sql
 
 INSERT INTO users (name, nickname, email, password) VALUES
-  ('Alice', 'Super Seller', 'alice@example.com', 'password123'),
-  ('Bob',   'Fire Alarm Guy',  'bob@example.com',   'secret456');
+  ('Alice', 'Super Seller', 'alice@example.com', '123456'),
+  ('Bob',   'Fire Alarm Guy',  'bob@example.com',   '123456');
 
 INSERT INTO offers (
   user_id,

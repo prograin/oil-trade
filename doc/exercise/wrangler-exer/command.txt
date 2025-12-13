@@ -1,3 +1,12 @@
 npx wrangler pages deploy dist/                                                         # for deploying to cloudflare
 npx wrangler d1 execute oil_db_test --local --file=./db/schema.sql                      # For running sql 
+npx wrangler d1 execute DB --env dev --local --file=./db/schema.sql                     # For running sql with env environment not prod
+npx wrangler d1 execute oil_db_test --env dev --local --file=./db/schema.sql            #Alternative way
 npx wrangler d1 execute oil_db_test --local --command="PRAGMA table_info(offers);"      # See columns table
+
+
+
+------------------------------
+DB matches your binding = "DB"
+--env dev selects the [[env.dev.d1_databases]] entry (so it uses oil_db_test)
+--local means the local emulator

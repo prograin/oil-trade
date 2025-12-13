@@ -1,3 +1,7 @@
+#INFO
+. We just use one db for development and production
+. in Production cloudflare create deafult place for d1 and config
+
 #Installing and building
 npx pnpm -D install wrangler                                            # Install dev wrangler for interact with cloudflare
 npx nuxi build                                                          # build nuxt and creatte .output
@@ -7,12 +11,15 @@ npx pnpm run build
 
 #Run dev mode
 npx wrangler dev                                                        # Run development wrangler remote
-npx wrangler dev --env --local                                          # Run development wrangler local -- Running wrangler dev without --env dev (uses prod!)
+npx wrangler dev --env dev --local                                      # Run development wrangler local -- Running wrangler dev without --env dev (uses prod!) ,it is not necessary
 
 #D1 
 npx wrangler d1 create oil_db                                           # Create database on server
 npx wrangler d1 create oil_db --local                                   # Create database on local
-npx wrangler d1 execute oil_db_test --local --file=./db/schema.sql      # For running sql locally
+
+#Execute
+npx wrangler d1 execute oil_db_test --local --file=./db/schema.sql                  # For running sql locally
+npx wrangler d1 execute oil_db_test --env dev --local --file=./db/schema.sql        # Use env variable in toml , it is not necessary
 npx wrangler d1 info <DATABASE_NAME> 
 
 #Secret
