@@ -8,11 +8,7 @@ export default {
   components: true,
   devtools: { enabled: true },
   nitro: {
-<<<<<<< HEAD
-    preset: 'cloudflare_durable',
-=======
     preset: 'cloudflare',
->>>>>>> parent of 947f865 (change cloudlfare toml)
     cloudflare: {
       // This tells Nitro about the D1 binding
       d1Databases: ['DB'],
