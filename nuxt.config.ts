@@ -1,11 +1,19 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite'
 
 export default {
-  css: ["~/assets/css/main.css", "~/assets/css/components.css", "~/assets/css/utilities.css"],
-  compatibilityDate: "2025-07-15",
+  css: ['~/assets/css/main.css', '~/assets/css/components.css', '~/assets/css/utilities.css'],
+  modules: ['@nuxt/ui', 'nuxt-auth-utils'],
+  compatibilityDate: '2025-07-15',
   components: true,
   devtools: { enabled: true },
+  nitro: {
+    preset: 'cloudflare_pages',
+    cloudflare: {
+      // This tells Nitro about the D1 binding
+      d1Databases: ['DB'],
+    },
+  },
   vite: {
     server: {
       watch: {
@@ -14,4 +22,4 @@ export default {
     },
     plugins: [tailwindcss()],
   },
-};
+}

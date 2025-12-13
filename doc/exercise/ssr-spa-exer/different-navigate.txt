@@ -1,5 +1,6 @@
 <a href="/..">                              reloading the whole page
 <link to="/..">                             no reload
+<NuxtLink to="/..">
 route = useRouter ; route.push("/...")      no reload - vue
 navigate = useNavigaet ; navigate("/...")   no reload - react
-
+navigateTo                                  on server is like "refrict()", in client is like "router.push()"

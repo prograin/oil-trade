@@ -1,3 +1,12 @@
 {
-    "liveServer.settings.port": 5501
+  "liveServer.settings.port": 5501,
+  "sqltools.useNodeRuntime": true,
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "name": "oil-db",
+      "database": "${workspaceFolder:oil-app-nuxt}/.wrangler/state/v3/d1/miniflare-D1DatabaseObject/8a469638e31b5bee3058cbb900855a9dfd17a88c0066a392d2510cb9c357ba74.sqlite"
+    }
+  ]
 }

@@ -27,3 +27,12 @@ npx pnpm add -D sass sass-loader@10
 
 ---------for icon
 npx pnpm install lucide-vue-next
+
+---------NUXT Ui
+npx pnpm add @nuxt/ui
+export default defineNuxtConfig({
+  modules: ['@nuxt/ui']
+})
+
+#in css
+@import "@nuxt/ui";

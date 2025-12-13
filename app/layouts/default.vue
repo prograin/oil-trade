@@ -1,8 +1,9 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
 import { TruckIcon, PlusIcon, FuelIcon, MenuIcon, CompassIcon, LogOutIcon, ChartLine, HomeIcon, LogInIcon, UserIcon } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
+
+const { loggedIn, user, clear } = useUserSession()
 
 const route = useRoute()
 
@@ -34,6 +35,17 @@ watch(
     mainMenuOpen.value = false
   },
 )
+
+const onLogout = async () => {
+  try {
+    await $fetch('/api/auth/logout', { method: 'POST' })
+    await clear()
+  } catch (error) {
+    console.error('Logout failed:', error)
+  } finally {
+    return navigateTo('/login')
+  }
+}
 </script>
 
 <template>
@@ -45,11 +57,10 @@ watch(
 
         <!-- Home -->
         <nav v-if="route.path === '/'" class="space-x-4 flex items-center">
-          <NuxtLink to="/" class="nav-link">
-            <HomeIcon class="w-6 h-6" />
+          <NuxtLink v-if="loggedIn" to="/dashboard" class="nav-link">
+            <UserIcon class="w-6 h-6" />
           </NuxtLink>
-
-          <NuxtLink to="/login" class="nav-link">
+          <NuxtLink v-else to="/login" class="nav-link">
             <LogInIcon class="w-6 h-6" />
           </NuxtLink>
         </nav>
@@ -81,7 +92,7 @@ watch(
             <div v-show="mainMenuOpen">
               <button class="rounded-t"><ChartLine /> Market Trends</button>
               <NuxtLink to="/explore" class="nav-link"><CompassIcon /> Explore</NuxtLink>
-              <button class="rounded-b"><LogOutIcon /> Logout</button>
+              <button class="rounded-b" v-on:click="onLogout"><LogOutIcon /> Logout</button>
             </div>
           </div>
         </div>
@@ -94,6 +105,20 @@ watch(
 
           <NuxtLink to="/dashboard" class="nav-link">
             <UserIcon class="w-6 h-6" />
+          </NuxtLink>
+        </nav>
+
+        <!-- Explore -->
+        <nav v-else-if="route.path.startsWith('/explore')" class="space-x-4 flex items-center">
+          <NuxtLink to="/" class="nav-link">
+            <HomeIcon class="w-6 h-6" />
+          </NuxtLink>
+
+          <NuxtLink v-if="loggedIn" to="/dashboard" class="nav-link">
+            <UserIcon class="w-6 h-6" />
+          </NuxtLink>
+          <NuxtLink v-else to="/login" class="nav-link">
+            <LogInIcon class="w-6 h-6" />
           </NuxtLink>
         </nav>
       </div>

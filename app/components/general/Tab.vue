@@ -3,7 +3,20 @@ import { ref, reactive } from 'vue'
 import { ChevronDown } from 'lucide-vue-next'
 import { tabs } from '~/data/offers'
 
+const props = defineProps({
+  data: { type: Array, default: () => [] },
+  refresh: { type: Function },
+})
+
+import { FilePlus } from 'lucide-vue-next'
+
 const activeTab = ref('offers')
+const errorTitle = ref('')
+const errorMessage = ref('')
+
+const { showError } = useErrorModal()
+const { askQuestion } = useQuestionModal()
+
 const openItems = reactive({})
 const openBids = reactive({})
 
@@ -11,29 +24,45 @@ function toggleBids(itemId) {
   openBids[itemId] = !openBids[itemId]
 }
 
-function toggleItem(tabId, itemId) {
+function toggleItem(itemId) {
   if (!openItems[tabId]) openItems[tabId] = {}
-  openItems[tabId][itemId] = !openItems[tabId][itemId]
+  openItems[itemId] = !openItems[itemId]
+}
+
+async function onDelete(itemId) {
+  askQuestion('Delete offer?', 'Are you sure you want to delete this offer? This action cannot be undone.', async () => {
+    try {
+      await $fetch(`/api/offer/${itemId}`, { method: 'DELETE' })
+      await props.refresh?.()
+    } catch (error) {
+      showError({
+        title: error?.data?.statusMessage || 'CRITICAL',
+        message: error?.data?.message || 'An unexpected error occurred.',
+      })
+    }
+  })
 }
 </script>
 
 <template>
   <section class="tab">
-    <!-- Tab Button -->
-    <div class="tab-menu">
-      <button v-for="tab in tabs" :key="tab.id" @click="activeTab = tab.id" :class="{ active: activeTab == tab.id }">
-        {{ tab.label }}
+    <!-- Create Button For First  -->
+    <div v-if="!data || data.length === 0" class="tab-first-created-container">
+      <button @click="$router.push('/add/offer')" class="tab-first-created-button group">
+        <FilePlus class="tab-first-created-icon" />
+        <span class="tab-first-created-label">
+          {{ activeTab === 'offers' ? 'New Offer' : 'New Demand' }}
+        </span>
       </button>
     </div>
-
     <!-- Tab Content -->
-    <div v-for="tab in tabs" :key="tab.id" class="tab-content">
-      <div v-for="item in tab.items" :key="item.title" class="tab-item" v-show="activeTab === tab.id">
+    <!-- data : [[{label,value}]] -->
+    <div v-else class="tab-content">
+      <div v-for="item in data" :key="item.id.value" class="tab-item">
         <!-- Header -->
-        <div class="tab-item-header" v-on:click="toggleItem(tab.id, item.id)">
+        <div class="tab-item-header" v-on:click="toggleItem(item.id.value)">
           <div class="tab-item-header-container">
-            <h3 class="tab-item-header-titile">{{ item.title }}</h3>
-            <p class="tab-item-header-subtitile">{{ item.subtitle }}</p>
+            <h3 class="tab-item-header-titile">{{ item.product.value }}</h3>
           </div>
           <!-- <ChevronDown
             :class="[
@@ -46,14 +75,16 @@ function toggleItem(tabId, itemId) {
         <!-- Details -->
         <div class="tab-item-detail">
           <div class="tab-item-detail-container">
-            <div v-for="d in item.data" :key="d.label" class="tab-item-detail-data-dev">
-              <span class="text-yellow-300 font-semibold">{{ d.label }}</span>
-              <span class="text-white font-bold">{{ d.value }}</span>
-            </div>
+            <template v-for="d in item" :key="d.label">
+              <div v-if="!['ID', 'User'].includes(d.label)" class="tab-item-detail-data-dev">
+                <span class="text-yellow-300 font-semibold">{{ d.label }}</span>
+                <span class="text-white font-bold">{{ d.value }}</span>
+              </div>
+            </template>
           </div>
 
           <!-- Bids -->
-          <div v-if="item.bids && item.bids.length" class="tab-item-detail-bid bg-gray-800 rounded p-2 mt-2">
+          <!-- <div v-if="item.bids && item.bids.length" class="tab-item-detail-bid bg-gray-800 rounded p-2 mt-2">
             <div @click="toggleBids(item.id)" class="bid-items-header">
               <span>{{ openBids[item.id] ? 'Hide Bids' : 'Show Bids' }}</span>
               <ChevronDown :class="['chevron-icon', openBids[item.id] ? 'open' : 'close']" />
@@ -70,11 +101,11 @@ function toggleItem(tabId, itemId) {
                 </button>
               </div>
             </div>
-          </div>
+          </div> -->
           <div class="flex gap-2 mt-3 justify-end">
             <button class="edit-button">Edit</button>
-            <button class="delete-button">Delete</button>
-            <button class="book-button">Book</button>
+            <button class="delete-button" v-on:click="onDelete(item.id.value)">Delete</button>
+            <!-- <button class="book-button">Book</button> -->
           </div>
         </div>
       </div>
@@ -96,7 +127,21 @@ function toggleItem(tabId, itemId) {
 }
 
 .tab {
-  @apply max-w-6xl mx-auto bg-gray-800 rounded p-6 shadow relative;
+  @apply flex flex-col flex-1 h-full w-full mx-auto bg-gray-800 rounded p-6 shadow relative justify-center;
+}
+
+.tab-first-created-container {
+  @apply w-full flex flex-col items-center justify-center text-center text-gray-300 sm:py-20 space-y-8;
+}
+.tab-first-created-button {
+  @apply p-8 rounded-full bg-gray-700/40 hover:bg-gray-700/60 shadow-xl 
+         transition-all duration-300 active:scale-95 flex flex-col items-center  space-y-2 sm:space-y-4;
+}
+.tab-first-created-icon {
+  @apply w-14 h-14 sm:w-20 sm:h-20 text-yellow-400 group-hover:text-yellow-300 transition-colors duration-300;
+}
+.tab-first-created-label {
+  @apply text-sm sm:text-lg font-semibold text-yellow-300 group-hover:text-yellow-200 transition;
 }
 
 .tab-menu {
@@ -160,12 +205,12 @@ function toggleItem(tabId, itemId) {
 }
 
 .edit-button {
-  @apply px-4 py-1 rounded-md text-gray-200 bg-gray-800 hover:bg-gray-700 transition font-medium text-sm;
+  @apply px-4 py-1 rounded-md text-gray-200 bg-gray-800 hover:bg-gray-700 transition font-medium text-sm active:bg-gray-900 active:scale-95;
 }
 .delete-button {
-  @apply px-4 py-1 rounded-md text-gray-200 bg-gray-800 hover:bg-red-700 transition font-medium text-sm;
+  @apply px-4 py-1 rounded-md text-gray-200 bg-gray-800 hover:bg-red-700 transition font-medium text-sm active:bg-red-900 active:scale-95;
 }
 .book-button {
-  @apply px-4 py-1 rounded-md text-gray-200 bg-gray-800 hover:bg-green-700 transition font-medium text-sm;
+  @apply px-4 py-1 rounded-md text-gray-200 bg-gray-800 hover:bg-green-700 transition font-medium text-sm active:scale-95;
 }
 </style>

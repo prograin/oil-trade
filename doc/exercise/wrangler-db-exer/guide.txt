@@ -1,0 +1,16 @@
+#Installing and building
+npx pnpm -D install wrangler                                            # Install dev wrangler for interact with cloudflare
+npx nuxi build                                                          # build nuxt and creatte .output
+
+cd server
+npx pnpm run build                                      
+
+#Run dev mode
+npx wrangler dev                                                        # Run development wrangler remote
+npx wrangler dev --local                                                # Run development wrangler local
+
+#D1 
+npx wrangler d1 create oil_db                                           # Create database on server
+npx wrangler d1 create oil_db --local                                   # Create database on local
+npx wrangler d1 execute oil_db_test --local --file=./db/schema.sql      # For running sql locally
+npx wrangler d1 info <DATABASE_NAME> 

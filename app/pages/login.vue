@@ -1,29 +1,62 @@
 <script setup>
-import { useRouter } from "vue-router";
-const router = useRouter();
+import { ref, reactive } from 'vue'
+import zod from 'zod'
 
-const onLoginClicked = () => {
-  router.push("/dashboard");
-};
+const schema = zod.object({
+  email: zod.string().email('Invalid email address'),
+  password: zod.string().min(8, 'Password must be at least 8 characters'),
+})
+
+const data = reactive({ email: '', password: '' })
+const errors = ref({})
+const formError = ref('')
+
+const onLogin = async () => {
+  const result = schema.safeParse(data)
+  if (!result.success) {
+    errors.value = result.error.flatten((issue) => issue.message).fieldErrors
+    return
+  }
+  errors.value = {}
+
+  try {
+    const res = await $fetch('/api/auth/login', { method: 'POST', body: result.data })
+    if (res.ok) {
+      return navigateTo('/dashboard')
+    }
+  } catch (error) {
+    const msg = error?.data?.message || 'Login failed. Please try again.'
+    formError.value = msg
+  }
+}
 </script>
 
 <template>
   <main>
-    <div class="login-container">
+    <form class="login-container" @submit.prevent="onLogin">
       <h2>Login to Oil Market</h2>
       <div class="space-y-4">
         <div class="login-field">
           <label for="email">Email</label>
-          <input type="email" id="email" placeholder="you@example.com" />
+          <input v-model="data.email" type="email" id="email" placeholder="you@example.com" />
+          <label v-if="errors.email?.[0]" class="text-red-400 text-sm mb-1">
+            {{ errors.email[0] }}
+          </label>
         </div>
         <div class="login-field">
           <label for="password">Password</label>
-          <input type="password" id="password" placeholder="********" />
+          <input v-model="data.password" type="password" id="password" placeholder="********" />
+          <label v-if="errors.password?.[0]" class="text-red-400 text-sm mb-1">
+            {{ errors.password[0] }}
+          </label>
         </div>
-        <button class="login-button" v-on:click="onLoginClicked">Login</button>
+        <p v-if="formError" class="text-red-400 text-sm">
+          {{ formError }}
+        </p>
+        <button type="submit" class="login-button">Login</button>
       </div>
       <p>Don't have an account? <NuxtLink to="/" id="login-sign-up-btn">Sign Up</NuxtLink></p>
-    </div>
+    </form>
   </main>
 </template>
 
@@ -50,7 +83,7 @@ main {
 }
 
 .login-button {
-  @apply w-full bg-yellow-400 text-black font-bold py-2 hover:bg-yellow-500 transition;
+  @apply w-full bg-yellow-400 text-black font-bold py-2 hover:bg-yellow-500 active:bg-yellow-600 active:scale-95 transition;
 }
 
 .login-container > p {

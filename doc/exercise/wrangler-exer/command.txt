@@ -1,0 +1,3 @@
+npx wrangler pages deploy dist/                                                         # for deploying to cloudflare
+npx wrangler d1 execute oil_db_test --local --file=./db/schema.sql                      # For running sql 
+npx wrangler d1 execute oil_db_test --local --command="PRAGMA table_info(offers);"      # See columns table
