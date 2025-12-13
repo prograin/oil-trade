@@ -7,10 +7,13 @@ npx pnpm run build
 
 #Run dev mode
 npx wrangler dev                                                        # Run development wrangler remote
-npx wrangler dev --local                                                # Run development wrangler local
+npx wrangler dev --env --local                                          # Run development wrangler local -- Running wrangler dev without --env dev (uses prod!)
 
 #D1 
 npx wrangler d1 create oil_db                                           # Create database on server
 npx wrangler d1 create oil_db --local                                   # Create database on local
 npx wrangler d1 execute oil_db_test --local --file=./db/schema.sql      # For running sql locally
 npx wrangler d1 info <DATABASE_NAME> 
+
+#Secret
+wrangler secret put NUXT_SESSION_PASSWORD
