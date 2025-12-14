@@ -9,5 +9,8 @@
   body {
     @apply bg-gray-900 text-gray-100 flex flex-col min-h-screen font-sans;
   }
+  main {
+    @apply bg-gray-900 text-gray-100 flex flex-col min-h-screen font-sans;
+  }
 }
 
