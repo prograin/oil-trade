@@ -8,7 +8,11 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   nitro: {
-    preset: 'cloudflare', // IMPORTANT: not cloudflare_durable
+    preset: 'cloudflare_module', // <---this just work
+    cloudflare: {
+      deployConfig: true,
+      nodeCompat: true,
+    },
   },
 
   vite: {

@@ -1,7 +1,10 @@
 name = "oil-trade"
-main = "worker-entry.mjs"
+main = "./.output/server/index.mjs"
 compatibility_date = "2025-07-15"
 compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
 
 [[d1_databases]]
 binding = "DB"
