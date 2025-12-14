@@ -138,7 +138,7 @@ const onLogout = async () => {
 @reference "tailwindcss";
 
 .layout {
-  @apply bg-gray-900 text-gray-100 font-sans flex flex-col min-h-screen justify-between;
+  @apply bg-gray-900 text-gray-100 flex flex-col min-h-screen justify-between;
 }
 
 .layout-header {
