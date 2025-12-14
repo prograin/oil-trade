@@ -1,25 +1,18 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+// nuxt.config.ts
 import tailwindcss from '@tailwindcss/vite'
+import { defineNuxtConfig } from 'nuxt/config'
 
-export default {
+export default defineNuxtConfig({
   css: ['~/assets/css/main.css', '~/assets/css/components.css', '~/assets/css/utilities.css'],
   modules: ['@nuxt/ui', 'nuxt-auth-utils'],
-  compatibilityDate: '2025-07-15',
-  components: true,
   devtools: { enabled: true },
+
   nitro: {
-    preset: 'cloudflare_pages',
-    cloudflare: {
-      // This tells Nitro about the D1 binding
-      d1Databases: ['DB'],
-    },
+    preset: 'cloudflare', // IMPORTANT: not cloudflare_durable
   },
+
   vite: {
-    server: {
-      watch: {
-        usePolling: true, // Helps on Windows sometimes
-      },
-    },
+    server: { watch: { usePolling: true } },
     plugins: [tailwindcss()],
   },
-}
+})

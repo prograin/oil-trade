@@ -1,6 +1,7 @@
 name = "oil-trade"
-main = ".output/server/index.mjs"
-compatibility_date = "2024-01-01"
+main = "worker-entry.mjs"
+compatibility_date = "2025-07-15"
+compatibility_flags = ["nodejs_compat"]
 
 [[d1_databases]]
 binding = "DB"
