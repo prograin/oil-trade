@@ -241,7 +241,7 @@ async function onDelete(itemId) {
   @apply mt-3 space-y-2;
 }
 .bid-row {
-  @apply flex items-baseline gap-3 bg-gray-800 px-3 py-2 rounded text-sm;
+  @apply flex items-center gap-3 bg-gray-800 px-3 py-2 rounded text-sm justify-around;
 }
 .bid-user {
   @apply font-semibold text-yellow-400;
@@ -250,7 +250,7 @@ async function onDelete(itemId) {
   @apply font-medium text-gray-100;
 }
 .bid-time {
-  @apply text-xs text-right inline-block align-middle text-gray-400 flex-1;
+  @apply text-xs text-right hidden lg:inline-block align-middle text-gray-400 flex-1;
 }
 .bid-actions {
   @apply flex items-center gap-2;
