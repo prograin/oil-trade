@@ -8,7 +8,6 @@ const { data, error, refresh } = await useFetch('api/offer/my?include=bids', { m
 
 const results = computed(() => {
   const rows = data.value?.results ?? []
-  console.log(rows)
 
   return rows.map((row) => ({
     id: { label: 'ID', value: row.id },
@@ -26,6 +25,7 @@ const results = computed(() => {
     user_name: { label: 'User', value: row.user_name },
     api: { label: 'API', value: row.api },
     sulfur: { label: 'Sulfur', value: row.sulfur },
+    bids: { label: 'Bids', value: row.bids },
     created_at: { label: 'Created At', value: row.created_at },
   }))
 })

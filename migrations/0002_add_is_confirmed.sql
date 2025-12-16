@@ -1,0 +1,3 @@
+-- Migration number: 0002 	 2025-12-16T10:53:23.632Z
+ALTER TABLE bids
+ADD COLUMN is_confirmed BOOLEAN NOT NULL DEFAULT false;

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive } from 'vue'
-import { ChevronDown } from 'lucide-vue-next'
+import { ChevronDown, ChevronDownIcon } from 'lucide-vue-next'
 import { tabs } from '~/data/offers'
 
 const props = defineProps({
@@ -11,11 +11,10 @@ const props = defineProps({
 import { FilePlus } from 'lucide-vue-next'
 
 const activeTab = ref('offers')
-const errorTitle = ref('')
-const errorMessage = ref('')
 
 const { showError } = useErrorModal()
 const { askQuestion } = useQuestionModal()
+const { showSuccess } = useSuccessModal()
 
 const openItems = reactive({})
 const openBids = reactive({})
@@ -27,6 +26,27 @@ function toggleBids(itemId) {
 function toggleItem(itemId) {
   if (!openItems[tabId]) openItems[tabId] = {}
   openItems[itemId] = !openItems[itemId]
+}
+
+function onConfirm(bidId, status) {
+  askQuestion('Confirm Bid?', 'Are you sure you want to confirm this bid?', async () => {
+    try {
+      const res = await $fetch(`/api/bid/${bidId}/confirm`, { method: 'POST' })
+      if (res.success) {
+        showSuccess({
+          title: 'Bid confirmed',
+          message: 'The bid has been successfully confirmed.',
+        })
+
+        await props.refresh?.()
+      }
+    } catch (error) {
+      showError({
+        title: error?.data?.statusMessage || 'CRITICAL',
+        message: error?.data?.message || 'An unexpected error occurred.',
+      })
+    }
+  })
 }
 
 async function onDelete(itemId) {
@@ -76,7 +96,7 @@ async function onDelete(itemId) {
         <div class="tab-item-detail">
           <div class="tab-item-detail-container">
             <template v-for="d in item" :key="d.label">
-              <div v-if="!['ID', 'User'].includes(d.label)" class="tab-item-detail-data-dev">
+              <div v-if="!['ID', 'User', 'Bids'].includes(d.label)" class="tab-item-detail-data-dev">
                 <span class="text-yellow-300 font-semibold">{{ d.label }}</span>
                 <span class="text-white font-bold">{{ d.value }}</span>
               </div>
@@ -84,24 +104,40 @@ async function onDelete(itemId) {
           </div>
 
           <!-- Bids -->
-          <!-- <div v-if="item.bids && item.bids.length" class="tab-item-detail-bid bg-gray-800 rounded p-2 mt-2">
-            <div @click="toggleBids(item.id)" class="bid-items-header">
-              <span>{{ openBids[item.id] ? 'Hide Bids' : 'Show Bids' }}</span>
-              <ChevronDown :class="['chevron-icon', openBids[item.id] ? 'open' : 'close']" />
-            </div>
+          <!-- {bids:{value:[{}]}} -->
+          <div v-if="item.bids && item.bids.value.length > 0" class="bids-section pt-4 border-t">
+            <button type="button" class="bids-header" @click="toggleBids(item.id)">
+              <span class="bids-title">
+                Bids
+                <span class="bids-count">
+                  {{ item.bids.value.length }}
+                </span>
+              </span>
 
-            <div v-show="openBids[item.id]" class="mt-2 space-y-2">
-              <div v-for="bid in item.bids" :key="bid.timestamp" class="bid-item">
-                <div class="bid-item-container">
-                  <p class="text-yellow-400">{{ bid.bidder }}</p>
-                  <p class="text-gray-400 text-sm">{{ bid.value }} | {{ bid.timestamp }}</p>
+              <ChevronDown :class="['chevron-icon', openBids[item.id] ? 'open' : 'close']" />
+            </button>
+
+            <transition name="fade">
+              <div v-show="openBids[item.id]" class="bids-body">
+                <!-- EXISTING BIDS -->
+                <div v-for="bid in item.bids.value" :key="bid.id" class="bid-row">
+                  <!-- normal mode -->
+
+                  <span class="bid-user">{{ bid.bidder }}</span>
+                  <span class="bid-price">{{ bid.value }}</span>
+                  <span class="bid-time">{{ bid.created_at }}</span>
+                  <button
+                    :class="['bid-btn', bid.is_confirmed ? 'confirmed' : 'no-confirmed ']"
+                    v-on:click="onConfirm(bid.id, !bid.confirmed)"
+                  >
+                    {{ bid.is_confirmed ? 'Confirmed' : 'Confirm' }}
+                  </button>
                 </div>
-                <button :class="['bid-item-confirm-btn ', bid.confirmed ? 'confirmed' : 'no-confirmed ']">
-                  {{ bid.confirmed ? 'Confirmed' : 'Confirm' }}
-                </button>
               </div>
-            </div>
-          </div> -->
+            </transition>
+          </div>
+
+          <!-- Action Button -->
           <div class="flex gap-2 mt-3 justify-end">
             <button class="edit-button">Edit</button>
             <button class="delete-button" v-on:click="onDelete(item.id.value)">Delete</button>
@@ -185,23 +221,50 @@ async function onDelete(itemId) {
   @apply flex sm:flex-row flex-col gap-1 justify-between bg-gray-800 px-4 py-2 rounded shadow hover:bg-gray-600 transition;
 }
 
-.bid-item {
-  @apply flex flex-col sm:flex-row sm:justify-between sm:items-center items-start gap-4 bg-gray-700 p-2 rounded;
+/* Bids */
+.bids-section {
+  @apply border-t border-gray-700 pt-4;
 }
-.bid-items-header {
-  @apply flex justify-between items-center w-full px-4 py-2 text-gray-200 rounded-md transition font-medium;
+.bids-header {
+  @apply w-full flex items-center justify-between
+         bg-gray-800 px-4 py-2 rounded
+         hover:bg-gray-700 transition
+         cursor-pointer;
 }
-.bid-item-container {
-  @apply flex sm:flex-row flex-col sm:justify-end justify-start sm:items-end items-start space-x-4;
+.bids-title {
+  @apply flex items-center gap-2 text-gray-200 font-semibold;
 }
-.bid-item-confirm-btn {
-  @apply px-2 py-1 rounded text-sm self-end sm:self-auto;
+.bids-count {
+  @apply text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full;
 }
-.bid-item-confirm-btn.confirmed {
-  @apply bg-green-500 text-white;
+.bids-body {
+  @apply mt-3 space-y-2;
 }
-.bid-item-confirm-btn.no-confirmed {
-  @apply bg-gray-500 text-white;
+.bid-row {
+  @apply flex items-baseline gap-3 bg-gray-800 px-3 py-2 rounded text-sm;
+}
+.bid-user {
+  @apply font-semibold text-yellow-400;
+}
+.bid-price {
+  @apply font-medium text-gray-100;
+}
+.bid-time {
+  @apply text-xs text-right inline-block align-middle text-gray-400 flex-1;
+}
+.bid-actions {
+  @apply flex items-center gap-2;
+}
+.bid-btn {
+  @apply px-3 py-1 inline-flex  h-full items-center justify-center rounded text-xs
+         bg-gray-700 hover:bg-gray-600 active:bg-gray-900 active:scale-95
+         text-gray-200 transition;
+}
+.confirmed {
+  @apply bg-green-600 text-white cursor-not-allowed opacity-80;
+}
+.no-confirmed {
+  @apply bg-yellow-600 text-gray-900 hover:bg-yellow-500 cursor-pointer;
 }
 
 .edit-button {

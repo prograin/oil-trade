@@ -35,8 +35,7 @@ CREATE TABLE IF NOT EXISTS bids (
   user_id INTEGER,
   value REAL,
   created_at DATE DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id),
-  FOREIGN KEY (offer_id) REFERENCES offers(id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (offer_id) REFERENCES offers(id) ON DELETE CASCADE ON UPDATE CASCADE,
   UNIQUE (offer_id,user_id)
-
 )

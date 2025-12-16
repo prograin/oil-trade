@@ -315,8 +315,19 @@ watch(selectedOffer, (newVal) => {
             <span class="value text-right">{{ d.value }}</span>
           </div>
 
+          <div v-if="!user" class="bids-guest">
+            <div class="bids-guest-card">
+              <p class="bids-guest-title">Bids</p>
+              <p class="bids-guest-text">You must be signed in to view bids and place a bid on this offer.</p>
+
+              <div class="bids-guest-actions">
+                <NuxtLink to="/login" class="bids-guest-btn"> Sign in </NuxtLink>
+              </div>
+            </div>
+          </div>
+
           <!-- BIDS COLLAPSIBLE -->
-          <div class="bids-section">
+          <div v-else class="bids-section">
             <button type="button" class="bids-header" @click="showBids = !showBids">
               <span class="bids-title">
                 Bids
@@ -440,6 +451,28 @@ watch(selectedOffer, (newVal) => {
 .detail-row {
   @apply flex justify-between bg-gray-800 p-3 rounded
          shadow-sm hover:bg-gray-700 transition;
+}
+
+/* Guest (not logged in) */
+.bids-guest {
+  @apply mt-6 border-t border-gray-700 pt-4;
+}
+.bids-guest-card {
+  @apply bg-gray-800 p-4 rounded shadow-sm;
+}
+.bids-guest-title {
+  @apply text-gray-200 font-semibold;
+}
+.bids-guest-text {
+  @apply text-sm text-gray-400 mt-1;
+}
+.bids-guest-actions {
+  @apply mt-3 flex items-center gap-2;
+}
+.bids-guest-btn {
+  @apply px-3 py-1.5 text-sm font-semibold
+         bg-yellow-500 text-gray-900 rounded
+         hover:bg-yellow-400 transition inline-flex items-center justify-center;
 }
 
 /* BIDS */

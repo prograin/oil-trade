@@ -1,0 +1,2 @@
+npx wrangler d1 migrations create DB add_bid_cascade        # Create migration and add sql code to migration file
+npx wrangler d1 migrations apply DB --local                 # Apply to local

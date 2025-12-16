@@ -42,8 +42,10 @@ export default defineEventHandler(async (event) => {
       .prepare(
         `
         SELECT
-          bids.*
+          bids.*,
+          users.nickname AS bidder
         FROM bids
+        JOIN users ON bids.user_id = users.id
         WHERE bids.offer_id IN (${placeholders})
         ORDER BY bids.created_at DESC
         `,
@@ -63,7 +65,7 @@ export default defineEventHandler(async (event) => {
       ...o,
       bids: bidsByOfferId[o.id] ?? [],
     }))
-
+    console.log(merged[0].bids.length)
     return { success: true, results: merged }
   } catch (err) {
     setResponseStatus(event, 500)
