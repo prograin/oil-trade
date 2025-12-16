@@ -97,7 +97,7 @@ async function onDelete(itemId) {
           <div class="tab-item-detail-container">
             <template v-for="d in item" :key="d.label">
               <div v-if="!['ID', 'User', 'Bids'].includes(d.label)" class="tab-item-detail-data-dev">
-                <span class="text-yellow-300 font-semibold">{{ d.label }}</span>
+                <span class="text-gray-400 font-semibold">{{ d.label }}</span>
                 <span class="text-white font-bold">{{ d.value }}</span>
               </div>
             </template>
@@ -124,10 +124,11 @@ async function onDelete(itemId) {
                   <!-- normal mode -->
 
                   <span class="bid-user">{{ bid.bidder }}</span>
-                  <span class="bid-price">{{ bid.value }}</span>
+                  <span class="bid-price">{{ bid.value }} USD/BBL</span>
                   <span class="bid-time">{{ bid.created_at }}</span>
                   <button
-                    :class="['bid-btn', bid.is_confirmed ? 'confirmed' : 'no-confirmed ']"
+                    :disabled="bid.is_confirmed"
+                    :class="['bid-btn', { disable: bid.is_confirmed }, bid.is_confirmed ? 'confirmed' : 'no-confirmed ']"
                     v-on:click="onConfirm(bid.id, !bid.confirmed)"
                   >
                     {{ bid.is_confirmed ? 'Confirmed' : 'Confirm' }}
@@ -258,13 +259,10 @@ async function onDelete(itemId) {
 .bid-btn {
   @apply px-3 py-1 inline-flex  h-full items-center justify-center rounded text-xs
          bg-gray-700 hover:bg-gray-600 active:bg-gray-900 active:scale-95
-         text-gray-200 transition;
+         text-gray-200 transition disabled:active:scale-100;
 }
 .confirmed {
-  @apply bg-green-600 text-white cursor-not-allowed opacity-80;
-}
-.no-confirmed {
-  @apply bg-yellow-600 text-gray-900 hover:bg-yellow-500 cursor-pointer;
+  @apply bg-green-600 text-white cursor-not-allowed opacity-80 disabled:bg-green-600;
 }
 
 .edit-button {

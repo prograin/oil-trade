@@ -150,7 +150,6 @@ const offers = computed(() => {
       { label: 'Operation Cost', value: row.operation_cost },
       { label: 'Down Payment', value: row.down_payment },
       { label: 'Validity', value: row.validity },
-      { label: 'User', value: row.user_name },
       { label: 'API', value: row.api },
       { label: 'Sulfur', value: row.sulfur },
       { label: 'Created At', value: row.created_at },
@@ -361,7 +360,7 @@ watch(selectedOffer, (newVal) => {
                   <!-- normal mode -->
                   <template v-else>
                     <span class="bid-user">{{ bid.nickname }}</span>
-                    <span class="bid-price">{{ bid.value }}</span>
+                    <span class="bid-price">{{ bid.value }} USD/BBL</span>
                     <span class="bid-time">{{ bid.created_at }}</span>
                     <div v-if="bid.user_id === user.id" class="bid-actions">
                       <button type="button" class="bid-btn-icon bid-btn--blue" @click="startEditBid(bid)">
