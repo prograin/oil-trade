@@ -6,11 +6,10 @@ import { tabs } from '~/data/offers'
 const props = defineProps({
   data: { type: Array, default: () => [] },
   refresh: { type: Function },
+  activeTab: { type: String, required: true },
 })
 
 import { FilePlus } from 'lucide-vue-next'
-
-const activeTab = ref('offers')
 
 const { showError } = useErrorModal()
 const { askQuestion } = useQuestionModal()
@@ -18,6 +17,13 @@ const { showSuccess } = useSuccessModal()
 
 const openItems = reactive({})
 const openBids = reactive({})
+
+const filteredData = computed(() => {
+  if (props.activeTab === 'actives') {
+    return props.data.filter((row) => row.is_active.value === true || row.is_active.value === 1)
+  }
+  return props.data
+})
 
 function toggleBids(itemId) {
   openBids[itemId] = !openBids[itemId]
@@ -67,7 +73,7 @@ async function onDelete(itemId) {
 <template>
   <section class="tab">
     <!-- Create Button For First  -->
-    <div v-if="!data || data.length === 0" class="tab-first-created-container">
+    <div v-if="!filteredData || filteredData.length === 0" class="tab-first-created-container">
       <button @click="$router.push('/add/offer')" class="tab-first-created-button group">
         <FilePlus class="tab-first-created-icon" />
         <span class="tab-first-created-label">
@@ -75,10 +81,11 @@ async function onDelete(itemId) {
         </span>
       </button>
     </div>
+
     <!-- Tab Content -->
     <!-- data : [[{label,value}]] -->
     <div v-else class="tab-content">
-      <div v-for="item in data" :key="item.id.value" class="tab-item">
+      <div v-for="item in filteredData" :key="item.id.value" class="tab-item">
         <!-- Header -->
         <div class="tab-item-header" v-on:click="toggleItem(item.id.value)">
           <div class="tab-item-header-container">
@@ -96,7 +103,7 @@ async function onDelete(itemId) {
         <div class="tab-item-detail">
           <div class="tab-item-detail-container">
             <template v-for="d in item" :key="d.label">
-              <div v-if="!['ID', 'User', 'Bids'].includes(d.label)" class="tab-item-detail-data-dev">
+              <div v-if="!['ID', 'User', 'Bids', 'is_active'].includes(d.label)" class="tab-item-detail-data-dev">
                 <span class="text-gray-400 font-semibold">{{ d.label }}</span>
                 <span class="text-white font-bold">{{ d.value }}</span>
               </div>

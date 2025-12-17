@@ -38,8 +38,6 @@ export default defineEventHandler(async (event) => {
       message: 'The offer has been deleted successfully.',
     }
   } catch (error) {
-    console.log('--------------')
-    console.log(error)
     throw createError({
       statusCode: 500,
       statusMessage: 'Deletion Failed',

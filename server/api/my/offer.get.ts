@@ -1,13 +1,8 @@
 export default defineEventHandler(async (event) => {
   try {
-    const session = await getUserSession(event)
     const db = event.context.cloudflare.env.DB
     const query = getQuery(event)
     const includeBids = query.include === 'bids'
-
-    if (!session?.user) {
-      throw createError({ statusCode: 401, statusMessage: 'Unauthorized', message: 'Unauthorized' })
-    }
 
     // 1) Fetch user's offers
     const offersRes = await db
@@ -20,7 +15,7 @@ export default defineEventHandler(async (event) => {
         ORDER BY offers.id DESC
         `,
       )
-      .bind(session.user.id)
+      .bind(event.context.user.id)
       .all()
 
     const offers = offersRes.results ?? []
@@ -65,7 +60,6 @@ export default defineEventHandler(async (event) => {
       ...o,
       bids: bidsByOfferId[o.id] ?? [],
     }))
-    console.log(merged[0].bids.length)
     return { success: true, results: merged }
   } catch (err) {
     setResponseStatus(event, 500)

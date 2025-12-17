@@ -152,7 +152,6 @@ const offers = computed(() => {
       { label: 'Validity', value: row.validity },
       { label: 'API', value: row.api },
       { label: 'Sulfur', value: row.sulfur },
-      { label: 'Created At', value: row.created_at },
     ],
   }))
 })
@@ -185,13 +184,12 @@ const filteredOffers = computed(() => {
 
   if (selectedDelivery.value) list = list.filter((o) => getField(o, 'Delivery Term') === selectedDelivery.value)
 
-  // Sorting
-  if (sortBy.value === 'price') {
-    list.sort((a, b) => parseFloat(getField(a, 'Price')) - parseFloat(getField(b, 'Price')))
-  }
-
   if (sortBy.value === 'date') {
     list.sort((a, b) => new Date(getField(a, 'Validity')) - new Date(getField(b, 'Validity')))
+  }
+
+  if (sortBy.value === 'quantity') {
+    list.sort((a, b) => parseFloat(getField(a, 'Quantity')) - parseFloat(getField(b, 'Quantity')))
   }
 
   return list
@@ -255,8 +253,8 @@ watch(selectedOffer, (newVal) => {
       <div class="relative inline-block">
         <select v-model="sortBy" class="filter-box pr-8">
           <option value="">Sort</option>
-          <option value="price">Price</option>
           <option value="date">Validity</option>
+          <option value="quantity">Quantity</option>
         </select>
         <button v-if="sortBy" class="clear-btn" @click.stop="sortBy = ''" type="button">
           <XIcon class="w-3 h-3" />
@@ -282,8 +280,6 @@ watch(selectedOffer, (newVal) => {
           <div class="value">{{ getField(item, 'Quantity') }}</div>
           <div class="label">Delivery</div>
           <div class="value">{{ getField(item, 'Delivery Term') }}</div>
-          <div class="label">Price</div>
-          <div class="value">{{ getField(item, 'Price') }}</div>
           <div class="label">Payment</div>
           <div class="value">{{ getField(item, 'Payment Term') }}</div>
         </div>

@@ -1,12 +1,9 @@
 export default defineEventHandler(async (event) => {
   try {
     const data = await readBody(event)
-    const session = await getUserSession(event)
-    if (!session.user) {
-      throw createError({ statusCode: 401, statusMessage: 'Unauthorized', message: 'You must be logged in to access this page' })
-    }
+    const user = event.context.user
 
-    const userId = session.user?.id
+    const userId = user.id
     const db = event.context.cloudflare.env.DB
 
     await db

@@ -1,5 +1,6 @@
 import zod from 'zod'
 import bcrypt from 'bcryptjs'
+import { SignJWT } from 'jose'
 
 const bodySchema = zod.object({
   email: zod.string().email(),
@@ -28,6 +29,14 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const secret = new TextEncoder().encode(event.context.cloudflare.env.NUXT_JWT_SECRET)
+  const token = await new SignJWT({ userId: user.id, email: user.email })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setSubject(String(user.id))
+    .setIssuedAt()
+    .setExpirationTime('2h') // Token expires in 2 hours
+    .sign(secret)
+
   await setUserSession(event, {
     user: {
       id: user.id,
@@ -36,5 +45,5 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  return { ok: true }
+  return { ok: true, token }
 })

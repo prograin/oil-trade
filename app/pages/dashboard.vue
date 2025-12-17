@@ -4,30 +4,47 @@ definePageMeta({
 })
 
 const { user } = useUserSession()
-const { data, error, refresh } = await useFetch('api/offer/my?include=bids', { method: 'GET', server: false })
+const { data, error, refresh } = await useFetch('api/my/offer?include=bids', { method: 'GET', server: false })
 
-const results = computed(() => {
+const activeMetric = ref('offers')
+let activeCounts = 0
+
+function onMetricClicked(metric) {
+  activeMetric.value = metric
+}
+
+const offersResults = computed(() => {
   const rows = data.value?.results ?? []
 
-  return rows.map((row) => ({
-    id: { label: 'ID', value: row.id },
-    product: { label: 'Product', value: row.product },
-    quantity: { label: 'Quantity', value: row.quantity },
-    deal_type: { label: 'Deal Type', value: row.deal_type },
-    delivery_term: { label: 'Delivery Term', value: row.delivery_term },
-    delivery_detail: { label: 'Delivery Detail', value: row.delivery_detail },
-    transfer_zone: { label: 'Transfer Zone', value: row.transfer_zone },
-    benchmark_based: { label: 'Benchmark Based', value: row.benchmark_based },
-    payment_term: { label: 'Payment Term', value: row.payment_term },
-    operation_cost: { label: 'Operation Cost', value: row.operation_cost },
-    down_payment: { label: 'Down Payment', value: row.down_payment },
-    validity: { label: 'Validity', value: row.validity },
-    user_name: { label: 'User', value: row.user_name },
-    api: { label: 'API', value: row.api },
-    sulfur: { label: 'Sulfur', value: row.sulfur },
-    bids: { label: 'Bids', value: row.bids },
-    created_at: { label: 'Created At', value: row.created_at },
-  }))
+  // reset counter on each recompute
+  activeCounts = 0
+
+  return rows.map((row) => {
+    if (row.is_active === true || row.is_active === 1) {
+      activeCounts++
+    }
+
+    return {
+      id: { label: 'ID', value: row.id },
+      product: { label: 'Product', value: row.product },
+      quantity: { label: 'Quantity', value: row.quantity },
+      deal_type: { label: 'Deal Type', value: row.deal_type },
+      delivery_term: { label: 'Delivery Term', value: row.delivery_term },
+      delivery_detail: { label: 'Delivery Detail', value: row.delivery_detail },
+      transfer_zone: { label: 'Transfer Zone', value: row.transfer_zone },
+      benchmark_based: { label: 'Benchmark Based', value: row.benchmark_based },
+      payment_term: { label: 'Payment Term', value: row.payment_term },
+      operation_cost: { label: 'Operation Cost', value: row.operation_cost },
+      down_payment: { label: 'Down Payment', value: row.down_payment },
+      validity: { label: 'Validity', value: row.validity },
+      user_name: { label: 'User', value: row.user_name },
+      api: { label: 'API', value: row.api },
+      sulfur: { label: 'Sulfur', value: row.sulfur },
+      bids: { label: 'Bids', value: row.bids },
+      created_at: { label: 'Created At', value: row.created_at },
+      is_active: { label: 'Is Active', value: row.is_active },
+    }
+  })
 })
 </script>
 
@@ -58,26 +75,26 @@ const results = computed(() => {
 
       <!-- Metrics Cards -->
       <section class="dashboard-main-contents">
-        <div>
+        <button v-on:click="onMetricClicked('offers')" :class="{ active: activeMetric === 'offers' }">
           <p class="metric-label">Offers</p>
-          <p class="metric-value">{{ results.length }}</p>
-        </div>
+          <p class="metric-value">{{ offersResults.length }}</p>
+        </button>
 
-        <div>
+        <button v-on:click="onMetricClicked('demands')" :class="{ active: activeMetric === 'demands' }">
           <p class="metric-label">Demands</p>
           <p class="metric-value">5</p>
-        </div>
+        </button>
 
-        <div>
+        <button v-on:click="onMetricClicked('actives')" :class="{ active: activeMetric === 'actives' }">
           <p class="metric-label">Actives</p>
-          <p class="metric-value">3</p>
-        </div>
+          <p class="metric-value">{{ activeCounts }}</p>
+        </button>
       </section>
     </div>
 
     <!-- Tabs -->
     <section class="flex flex-col flex-1">
-      <GeneralTab :data="results" :refresh="refresh" />
+      <GeneralTab :data="offersResults" :refresh="refresh" :activeTab="activeMetric" />
     </section>
   </main>
 </template>
@@ -120,8 +137,11 @@ main {
   @apply grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 flex-1 sm:flex-none gap-6 md:w-5/12 md:justify-start;
 }
 
-.dashboard-main-contents > div {
-  @apply bg-gray-800  sm:w-full rounded shadow hover:shadow-xl transition flex flex-col items-center justify-center p-1;
+.dashboard-main-contents > button {
+  @apply bg-gray-800  sm:w-full rounded shadow hover:bg-gray-700 hover:shadow-xl active:scale-95 active:bg-gray-600 transition flex flex-col items-center justify-center p-1;
+}
+.dashboard-main-contents > button.active {
+  @apply bg-gray-600;
 }
 
 .metric-label {
