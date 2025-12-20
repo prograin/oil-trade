@@ -4,7 +4,18 @@ definePageMeta({
 })
 
 const { user } = useUserSession()
-const { data, error, refresh } = await useFetch('api/my/offer?include=bids', { method: 'GET', server: false })
+
+const {
+  data: offersData,
+  error: offersError,
+  refresh: offersRefresh,
+} = await useFetch('/api/my/offer?include=bids', { method: 'GET', server: false })
+
+const {
+  data: demandsData,
+  error: demandsError,
+  refresh: demandsRefresh,
+} = await useFetch('/api/my/demand', { method: 'GET', server: false })
 
 const activeMetric = ref('offers')
 let activeCounts = 0
@@ -13,38 +24,99 @@ function onMetricClicked(metric) {
   activeMetric.value = metric
 }
 
-const offersResults = computed(() => {
-  const rows = data.value?.results ?? []
+const activeRefresh = () => {
+  if (activeMetric.value === 'offers') {
+    return offersRefresh()
+  }
+
+  if (activeMetric.value === 'demands') {
+    return demandsRefresh()
+  }
+
+  // actives → refresh both
+  return Promise.all([offersRefresh(), demandsRefresh()])
+}
+
+const results = computed(() => {
+  const offersRows = offersData.value?.results ?? []
+  const demandsRows = demandsData.value?.results ?? []
 
   // reset counter on each recompute
   activeCounts = 0
 
-  return rows.map((row) => {
-    if (row.is_active === true || row.is_active === 1) {
-      activeCounts++
-    }
+  const offers = offersRows.map((row) => {
+    if (row.is_active === true || row.is_active === 1) activeCounts++
 
     return {
+      type: { label: 'Type', value: row.type ?? 'offer' },
+
       id: { label: 'ID', value: row.id },
       product: { label: 'Product', value: row.product },
+
       quantity: { label: 'Quantity', value: row.quantity },
       deal_type: { label: 'Deal Type', value: row.deal_type },
+
       delivery_term: { label: 'Delivery Term', value: row.delivery_term },
       delivery_detail: { label: 'Delivery Detail', value: row.delivery_detail },
       transfer_zone: { label: 'Transfer Zone', value: row.transfer_zone },
+
       benchmark_based: { label: 'Benchmark Based', value: row.benchmark_based },
       payment_term: { label: 'Payment Term', value: row.payment_term },
       operation_cost: { label: 'Operation Cost', value: row.operation_cost },
       down_payment: { label: 'Down Payment', value: row.down_payment },
+
+      price: { label: 'Price', value: row.price }, // offers have price
       validity: { label: 'Validity', value: row.validity },
+
       user_name: { label: 'User', value: row.user_name },
       api: { label: 'API', value: row.api },
       sulfur: { label: 'Sulfur', value: row.sulfur },
+
       bids: { label: 'Bids', value: row.bids },
       created_at: { label: 'Created At', value: row.created_at },
       is_active: { label: 'Is Active', value: row.is_active },
     }
   })
+
+  const demands = demandsRows.map((row) => {
+    if (row.is_active === true || row.is_active === 1) activeCounts++
+
+    return {
+      type: { label: 'Type', value: row.type ?? 'demand' },
+
+      id: { label: 'ID', value: row.id },
+      document_type: { label: 'Document Type', value: row.document_type },
+      product: { label: 'Product', value: row.product },
+
+      api_min: { label: 'API Min', value: row.api_min },
+      api_max: { label: 'API Max', value: row.api_max },
+      sulfur_max: { label: 'Sulfur Max', value: row.sulfur_max },
+
+      quantity: { label: 'Quantity', value: row.quantity },
+      deal_type: { label: 'Deal Type', value: row.deal_type },
+
+      delivery_term: { label: 'Delivery Term', value: row.delivery_term },
+      delivery_detail: { label: 'Delivery Detail', value: row.delivery_detail },
+      transfer_zone: { label: 'Transfer Zone', value: row.transfer_zone },
+
+      benchmark_based: { label: 'Benchmark Based', value: row.benchmark_based },
+      payment_term: { label: 'Payment Term', value: row.payment_term },
+      operation_cost: { label: 'Operation Cost', value: row.operation_cost },
+      down_payment: { label: 'Down Payment', value: row.down_payment },
+
+      target_price: { label: 'Target Price', value: row.target_price }, // demands have target_price
+      validity: { label: 'Validity', value: row.validity },
+
+      user_name: { label: 'User', value: row.user_name },
+      created_at: { label: 'Created At', value: row.created_at },
+      is_active: { label: 'Is Active', value: row.is_active },
+    }
+  })
+
+  return {
+    offers,
+    demands,
+  }
 })
 </script>
 
@@ -77,12 +149,12 @@ const offersResults = computed(() => {
       <section class="dashboard-main-contents">
         <button v-on:click="onMetricClicked('offers')" :class="{ active: activeMetric === 'offers' }">
           <p class="metric-label">Offers</p>
-          <p class="metric-value">{{ offersResults.length }}</p>
+          <p class="metric-value">{{ results.offers.length }}</p>
         </button>
 
         <button v-on:click="onMetricClicked('demands')" :class="{ active: activeMetric === 'demands' }">
           <p class="metric-label">Demands</p>
-          <p class="metric-value">5</p>
+          <p class="metric-value">{{ results.demands.length }}</p>
         </button>
 
         <button v-on:click="onMetricClicked('actives')" :class="{ active: activeMetric === 'actives' }">
@@ -94,7 +166,7 @@ const offersResults = computed(() => {
 
     <!-- Tabs -->
     <section class="flex flex-col flex-1">
-      <GeneralTab :data="offersResults" :refresh="refresh" :activeTab="activeMetric" />
+      <GeneralTab :data="results" :refresh="activeRefresh" :activeTab="activeMetric" />
     </section>
   </main>
 </template>
@@ -102,7 +174,8 @@ const offersResults = computed(() => {
 <style scoped>
 @reference "tailwindcss";
 main {
-  @apply p-4 sm:p-6 space-y-5 flex flex-col justify-start flex-1;
+  @apply p-4 space-y-5 flex flex-col justify-start flex-1
+         w-full sm:max-w-6xl sm:mx-auto;
 }
 
 /* Dashboard Header */

@@ -53,7 +53,7 @@ const onLogout = async () => {
     <!-- Header -->
     <header class="layout-header">
       <div class="layout-header-container">
-        <NuxtLink to="/" class="layout-header-home-link">Oil Market</NuxtLink>
+        <NuxtLink to="/" class="layout-header-home-link">Black Wall</NuxtLink>
 
         <!-- Home -->
         <nav v-if="route.path === '/'" class="space-x-4 flex items-center">
@@ -81,7 +81,7 @@ const onLogout = async () => {
             </button>
             <div v-show="offerMenuOpen">
               <NuxtLink to="/add/offer" class="nav-link rounded-t"> <FuelIcon class="w-6 h-6" />Offer </NuxtLink>
-              <NuxtLink to="/add/offer" class="nav-link rounded-b"> <TruckIcon class="w-6 h-6" />Demand </NuxtLink>
+              <NuxtLink to="/add/demand" class="nav-link rounded-b"> <TruckIcon class="w-6 h-6" />Demand </NuxtLink>
             </div>
           </div>
 
@@ -129,7 +129,7 @@ const onLogout = async () => {
 
     <!-- Footer Content -->
     <footer class="layout-footer">
-      <div>&copy; 2025 Oil Market. All rights reserved.</div>
+      <div>&copy; 2025 Black Wall. All rights reserved.</div>
     </footer>
   </div>
 </template>

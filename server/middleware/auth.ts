@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
     { prefix: '/api/version' },
     { prefix: '/register' },
     { prefix: '/api/auth/login' },
+    { prefix: '/api/auth/signup' },
     { prefix: '/api/offer', methods: ['GET'] }, // only GET is public
   ]
   const path = event.path || ''

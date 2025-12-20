@@ -13,9 +13,9 @@ export default defineEventHandler(async (event) => {
       user_id, document_type, product, api, sulfur, quantity, deal_type,
       delivery_term, delivery_detail, transfer_zone,
       benchmark_based, payment_term, operation_cost,
-      down_payment, validity
+      down_payment, price, validity
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `,
       )
       .bind(
@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
         data.payment_term,
         data.operation_cost,
         data.down_payment,
+        data.price,
         data.validity,
       )
       .run()

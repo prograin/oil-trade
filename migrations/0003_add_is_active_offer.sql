@@ -1,3 +1,0 @@
--- Migration number: 0003 	 2025-12-17T09:25:09.770Z
-ALTER TABLE offers
-ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT false;

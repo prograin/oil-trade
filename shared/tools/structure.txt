@@ -670,14 +670,14 @@ app/
               <head>
                 <meta charset="UTF-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                <title>Oil Market Dashboard</title>
+                <title>Black Wall Dashboard</title>
                 <script src="https://cdn.tailwindcss.com"></script>
               </head>
               <body class="bg-gray-900 text-gray-100 font-sans min-h-screen flex flex-col">
                 <!-- Header -->
                 <header class="bg-black shadow-md sticky top-0 z-50">
                   <div class="container mx-auto flex justify-between items-center p-4">
-                    <h1 class="text-2xl font-bold text-yellow-400">Oil Market</h1>
+                    <h1 class="text-2xl font-bold text-yellow-400">Black Wall</h1>
                     <nav class="space-x-4 text-gray-300 hidden md:flex">
                       <a href="#" class="hover:text-yellow-400 transition">Home</a>
                       <a href="#explore" class="hover:text-yellow-400 transition">Explore</a>
@@ -805,7 +805,7 @@ app/
             
                 <!-- Footer -->
                 <footer class="bg-black text-gray-400 mt-6">
-                  <div class="container mx-auto p-4 text-center text-sm">&copy; 2025 Oil Market</div>
+                  <div class="container mx-auto p-4 text-center text-sm">&copy; 2025 Black Wall</div>
                 </footer>
             
                 <!-- Tabs & Collapsible Script -->
@@ -844,14 +844,14 @@ app/
               <head>
                 <meta charset="UTF-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                <title>Oil Market - Home</title>
+                <title>Black Wall - Home</title>
                 <script src="https://cdn.tailwindcss.com"></script>
               </head>
               <body class="bg-gray-900 text-gray-100 flex flex-col min-h-screen">
                 <!-- Header -->
                 <header class="bg-black shadow-md">
                   <div class="container mx-auto flex justify-between items-center p-4">
-                    <h1 class="text-2xl font-bold text-yellow-400">Oil Market</h1>
+                    <h1 class="text-2xl font-bold text-yellow-400">Black Wall</h1>
                     <nav class="space-x-6">
                       <a href="#home" class="hover:text-yellow-400 transition">Home</a>
                       <a href="#demand" class="hover:text-yellow-400 transition">Demand</a>
@@ -865,7 +865,7 @@ app/
                 <main class="flex-1 p-6">
                   <!-- Hero Section -->
                   <section id="home" class="mb-12 bg-gradient-to-r from-gray-800 via-black to-gray-900 p-8 rounded shadow-lg">
-                    <h2 class="text-3xl md:text-4xl font-bold text-yellow-400 mb-4">Welcome to Oil Market</h2>
+                    <h2 class="text-3xl md:text-4xl font-bold text-yellow-400 mb-4">Welcome to Black Wall</h2>
                     <p class="text-gray-300 mb-6">
                       Track global oil demand and supply, connect buyers and sellers efficiently, and make data-driven decisions in
                       the oil industry.
@@ -893,9 +893,9 @@ app/
             
                   <!-- About Section -->
                   <section class="mt-12 bg-gray-800 p-6 rounded shadow">
-                    <h3 class="text-2xl font-bold text-yellow-400 mb-4">About Oil Market</h3>
+                    <h3 class="text-2xl font-bold text-yellow-400 mb-4">About Black Wall</h3>
                     <p class="text-gray-300">
-                      Oil Market is a platform that bridges the gap between oil suppliers and buyers. Our goal is to make oil
+                      Black Wall is a platform that bridges the gap between oil suppliers and buyers. Our goal is to make oil
                       trading transparent, fast, and efficient with real-time data and user-friendly tools.
                     </p>
                   </section>
@@ -903,7 +903,7 @@ app/
             
                 <!-- Footer -->
                 <footer class="bg-black text-gray-300 mt-6">
-                  <div class="container mx-auto p-4 text-center">&copy; 2025 Oil Market. All rights reserved.</div>
+                  <div class="container mx-auto p-4 text-center">&copy; 2025 Black Wall. All rights reserved.</div>
                 </footer>
               </body>
             </html>
@@ -913,14 +913,14 @@ app/
               <head>
                 <meta charset="UTF-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                <title>Oil Market - Login</title>
+                <title>Black Wall - Login</title>
                 <script src="https://cdn.tailwindcss.com"></script>
               </head>
               <body class="bg-gray-900 text-gray-100 flex flex-col min-h-screen">
                 <!-- Header -->
                 <header class="bg-black shadow-md">
                   <div class="container mx-auto flex justify-between items-center p-4">
-                    <h1 class="text-2xl font-bold text-yellow-400">Oil Market</h1>
+                    <h1 class="text-2xl font-bold text-yellow-400">Black Wall</h1>
                     <nav class="space-x-6">
                       <a href="index.html" class="hover:text-yellow-400 transition">Home</a>
                       <a href="#login" class="hover:text-yellow-400 transition">Login</a>
@@ -931,7 +931,7 @@ app/
                 <!-- Main Content -->
                 <main class="flex-1 flex items-center justify-center p-6">
                   <div class="w-full max-w-md bg-gray-800 p-8 rounded shadow-lg">
-                    <h2 class="text-2xl font-bold text-yellow-400 mb-6 text-center">Login to Oil Market</h2>
+                    <h2 class="text-2xl font-bold text-yellow-400 mb-6 text-center">Login to Black Wall</h2>
                     <form class="space-y-4">
                       <div>
                         <label for="email" class="block mb-1">Email</label>
@@ -968,7 +968,7 @@ app/
             
                 <!-- Footer -->
                 <footer class="bg-black text-gray-300 mt-6">
-                  <div class="container mx-auto p-4 text-center">&copy; 2025 Oil Market. All rights reserved.</div>
+                  <div class="container mx-auto p-4 text-center">&copy; 2025 Black Wall. All rights reserved.</div>
                 </footer>
               </body>
             </html>

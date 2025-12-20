@@ -12,40 +12,56 @@ const { showSuccess } = useSuccessModal()
 const errors = ref({})
 
 const data = reactive({
-  document_type: 'Availability Notice – Sales Offer (SCO)',
+  document_type: 'RFQ – Request for Quotation',
   product: 'Light Crude Oil',
-  api: null,
-  sulfur: null,
+
+  api_min: null,
+  api_max: null,
+  sulfur_max: null,
+
   quantity: null,
   deal_type: 'Spot',
   delivery_term: 'FOB',
   delivery_detail: '',
   transfer_zone: '',
+
   benchmark_based: null,
   payment_term: 'TT after independent Q&Q inspection (Dip Test)',
   operation_cost: 'Standard STS operation included',
   down_payment: 'After Dip Test',
-  price: null,
+
+  target_price: null,
   validity: '',
 })
 
-const schema = z.object({
-  document_type: z.string().min(1, 'Document type is required'),
-  product: z.string().min(1, 'Product is required'),
-  api: z.number('API is required').min(0, 'API is required'),
-  sulfur: z.number('Sulfur is required').min(0, 'Sulfur must be less than 5'),
-  quantity: z.number('Quantity is required').positive('Quantity must be greater than 0'),
-  deal_type: z.string().min(1, 'Deal type is required'),
-  delivery_term: z.string().min(1, 'Delivery term is required'),
-  delivery_detail: z.string().min(1, 'Delivery details are required'),
-  transfer_zone: z.string().min(1, 'Transfer zone is required'),
-  benchmark_based: z.number('Benchmark differential is required'),
-  payment_term: z.string().min(1, 'Payment term is required'),
-  operation_cost: z.string().min(1, 'Operation cost is required'),
-  down_payment: z.string().min(1, 'Down payment is required'),
-  price: z.number('Price is required').min(1, 'Price must be greater than 1'),
-  validity: z.string().min(1, 'Validity date is required'),
-})
+const schema = z
+  .object({
+    document_type: z.string().min(1, 'Document type is required'),
+    product: z.string().min(1, 'Product is required'),
+
+    api_min: z.number({ message: 'API Min is required' }).min(0, 'API Min must be >= 0'),
+    api_max: z.number({ message: 'API Max is required' }).min(0, 'API Max must be >= 0'),
+    sulfur_max: z.number({ message: 'Sulfur Max is required' }).min(0, 'Sulfur Max must be >= 0').max(5, 'Sulfur Max must be <= 5'),
+
+    quantity: z.number({ message: 'Quantity is required' }).positive('Quantity must be greater than 0'),
+
+    deal_type: z.string().min(1, 'Deal type is required'),
+    delivery_term: z.string().min(1, 'Delivery term is required'),
+    delivery_detail: z.string().min(1, 'Delivery details are required'),
+    transfer_zone: z.string().min(1, 'Transfer zone is required'),
+
+    benchmark_based: z.number({ message: 'Benchmark differential is required' }),
+    payment_term: z.string().min(1, 'Payment term is required'),
+    operation_cost: z.string().min(1, 'Operation cost is required'),
+    down_payment: z.string().min(1, 'Down payment is required'),
+
+    target_price: z.number({ message: 'Target price is required' }).min(1, 'Target price must be greater than 1'),
+    validity: z.string().min(1, 'Validity date is required'),
+  })
+  .refine((v) => v.api_max >= v.api_min, {
+    message: 'API Max must be >= API Min',
+    path: ['api_max'],
+  })
 
 async function onSubmit(e) {
   e.preventDefault()
@@ -58,16 +74,16 @@ async function onSubmit(e) {
   }
   errors.value = {}
 
-  result.data['user_id'] = 1
   try {
-    const res = await $fetch('/api/offer', {
+    // if your backend reads user from session, you do NOT need user_id here
+    const res = await $fetch('/api/demand', {
       method: 'POST',
       body: result.data,
     })
 
     showSuccess({
-      title: 'Offer Created',
-      message: res.message || 'Your offer has been placed successfully.',
+      title: 'Demand Created',
+      message: res.message || 'Your demand has been placed successfully.',
     })
 
     await navigateTo('/dashboard')
@@ -81,9 +97,9 @@ async function onSubmit(e) {
 </script>
 
 <template>
-  <main id="offerModal" class="flex max-w-full items-center justify-center p-4 sm:p-6 w-full">
+  <main id="demandModal" class="flex max-w-full items-center justify-center p-4 sm:p-6 w-full">
     <div class="bg-gray-800 p-8 rounded relative max-w-2xl w-full">
-      <h2 class="font-semibold text-yellow-400 mb-4">Add Offer</h2>
+      <h2 class="font-semibold text-yellow-400 mb-4">Add Demand</h2>
 
       <form class="space-y-6 space-x-3" @submit.prevent="onSubmit">
         <!-- Document Type -->
@@ -94,11 +110,6 @@ async function onSubmit(e) {
               <option>RFQ – Request for Quotation</option>
               <option>LOI – Letter of Intent</option>
               <option>ICPO – Irrevocable Corporate Purchase Order (Draft)</option>
-            </optgroup>
-            <optgroup label="Sell-Side (Offer)">
-              <option>Availability Notice – Sales Offer (SCO)</option>
-              <option>Spot Cargo Offer</option>
-              <option>Term Contract Proposal</option>
             </optgroup>
             <optgroup label="Other">
               <option>EOI – Expression of Interest</option>
@@ -126,41 +137,55 @@ async function onSubmit(e) {
         <!-- Specification -->
         <div class="grid grid-cols-1 mx-0 sm:grid-cols-2 gap-4">
           <div class="flex-1 flex flex-col">
-            <label class="text-gray-300 text-sm mb-1">API</label>
+            <label class="text-gray-300 text-sm mb-1">API Min</label>
             <input
               type="number"
-              v-model="data.api"
+              v-model="data.api_min"
               step="0.1"
               min="0"
               placeholder="34.0"
               class="p-2 rounded text-black w-full bg-gray-100"
             />
-            <label v-if="errors.api?.[0]" class="text-red-400 text-sm mb-1">
-              {{ errors.api[0] }}
+            <label v-if="errors.api_min?.[0]" class="text-red-400 text-sm mb-1">
+              {{ errors.api_min[0] }}
             </label>
           </div>
+
           <div class="flex-1 flex flex-col">
-            <label class="text-gray-300 text-sm mb-1">Sulfur</label>
+            <label class="text-gray-300 text-sm mb-1">API Max</label>
             <input
               type="number"
-              v-model="data.sulfur"
+              v-model="data.api_max"
+              step="0.1"
+              min="0"
+              placeholder="40.0"
+              class="p-2 rounded text-black w-full bg-gray-100"
+            />
+            <label v-if="errors.api_max?.[0]" class="text-red-400 text-sm mb-1">
+              {{ errors.api_max[0] }}
+            </label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 mx-0 sm:grid-cols-2 gap-4">
+          <div class="flex-1 flex flex-col">
+            <label class="text-gray-300 text-sm mb-1">Sulfur Max</label>
+            <input
+              type="number"
+              v-model="data.sulfur_max"
               step="0.01"
               min="0"
               max="5"
               placeholder="1.2"
               class="p-2 rounded text-black w-full bg-gray-100"
             />
-            <label v-if="errors.sulfur?.[0]" class="text-red-400 text-sm mb-1">
-              {{ errors.sulfur[0] }}
+            <label v-if="errors.sulfur_max?.[0]" class="text-red-400 text-sm mb-1">
+              {{ errors.sulfur_max[0] }}
             </label>
           </div>
-        </div>
 
-        <!-- Quantity and Deal Type -->
-        <div class="grid grid-cols-1 mx-0 sm:grid-cols-2 gap-4">
           <div class="flex flex-col">
             <label class="text-gray-300 text-sm mb-1">Quantity</label>
-
             <div class="relative">
               <input
                 type="number"
@@ -174,19 +199,21 @@ async function onSubmit(e) {
               {{ errors.quantity[0] }}
             </label>
           </div>
-          <div class="flex flex-col">
-            <label class="text-gray-300 text-sm mb-1">Deal Type</label>
-            <select class="p-2 rounded text-black w-full bg-gray-100" v-model="data.deal_type">
-              <option>Spot</option>
-              <option>Term Contract (Monthly Delivery)</option>
-              <option>One-Time Cargo</option>
-              <option>Trial Shipment</option>
-              <option>Long-Term Supply Agreement</option>
-            </select>
-            <label v-if="errors.deal_type?.[0]" class="text-red-400 text-sm mb-1">
-              {{ errors.deal_type[0] }}
-            </label>
-          </div>
+        </div>
+
+        <!-- Deal Type -->
+        <div class="flex-item-field">
+          <label class="text-gray-300 text-sm mb-1">Deal Type</label>
+          <select class="p-2 rounded text-black w-full bg-gray-100" v-model="data.deal_type">
+            <option>Spot</option>
+            <option>Term Contract (Monthly Delivery)</option>
+            <option>One-Time Cargo</option>
+            <option>Trial Shipment</option>
+            <option>Long-Term Supply Agreement</option>
+          </select>
+          <label v-if="errors.deal_type?.[0]" class="text-red-400 text-sm mb-1">
+            {{ errors.deal_type[0] }}
+          </label>
         </div>
 
         <!-- Delivery Term -->
@@ -229,14 +256,13 @@ async function onSubmit(e) {
           </label>
         </div>
 
-        <!-- Price -->
+        <!-- Benchmark -->
         <div class="flex-item-field justify-start gap-2">
           <span class="text-gray-300">Benchmark-based (Platts Dated Brent ± differential)</span>
           <input
             type="number"
             v-model="data.benchmark_based"
             step="0.01"
-            min="0"
             placeholder="2.50 USD per BBL"
             class="p-2 rounded text-black w-full bg-gray-100"
           />
@@ -245,7 +271,7 @@ async function onSubmit(e) {
           </label>
         </div>
 
-        <!-- Payment Term, Operation Cost, Inspection -->
+        <!-- Payment & Operation -->
         <div class="grid grid-cols-1 mx-0 justify-center sm:grid-cols-2 gap-4">
           <div class="flex flex-col">
             <label class="text-gray-300 text-sm mb-1">Payment Term</label>
@@ -260,6 +286,7 @@ async function onSubmit(e) {
               {{ errors.payment_term[0] }}
             </label>
           </div>
+
           <div class="flex flex-col">
             <label class="text-gray-300 text-sm mb-1">Operation Cost</label>
             <select class="p-2 rounded text-black w-full bg-gray-100" v-model="data.operation_cost">
@@ -288,19 +315,19 @@ async function onSubmit(e) {
           </label>
         </div>
 
-        <!-- Price -->
+        <!-- Target Price -->
         <div class="flex-item-field">
-          <label class="text-gray-300 text-sm mb-1">Price</label>
+          <label class="text-gray-300 text-sm mb-1">Target Price</label>
           <input
             type="number"
             min="0"
-            step="0.01"
-            placeholder="Enter price"
-            v-model="data.price"
+            step="1"
+            placeholder="Enter target price"
+            v-model="data.target_price"
             class="p-2 rounded text-black w-full bg-gray-100"
           />
-          <label v-if="errors.price?.[0]" class="text-red-400 text-sm mb-1">
-            {{ errors.price[0] }}
+          <label v-if="errors.target_price?.[0]" class="text-red-400 text-sm mb-1">
+            {{ errors.target_price[0] }}
           </label>
         </div>
 

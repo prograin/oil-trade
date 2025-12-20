@@ -34,7 +34,7 @@ const onLogin = async () => {
 <template>
   <main>
     <form class="login-container" @submit.prevent="onLogin">
-      <h2>Login to Oil Market</h2>
+      <h2>Login to Black Wall</h2>
       <div class="space-y-4">
         <div class="login-field">
           <label for="email">Email</label>

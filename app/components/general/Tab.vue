@@ -4,7 +4,7 @@ import { ChevronDown, ChevronDownIcon } from 'lucide-vue-next'
 import { tabs } from '~/data/offers'
 
 const props = defineProps({
-  data: { type: Array, default: () => [] },
+  data: { type: Object, default: () => [] }, //{type:{field_name:{label:...,value:...}}}
   refresh: { type: Function },
   activeTab: { type: String, required: true },
 })
@@ -18,11 +18,28 @@ const { showSuccess } = useSuccessModal()
 const openItems = reactive({})
 const openBids = reactive({})
 
+const isActiveRow = (row) => {
+  const v = row?.is_active?.value
+  return v === true || v === 1 || v === '1'
+}
+
+const isEmpty = computed(() => !filteredData || filteredData.length === 0)
+const isActives = computed(() => activeTab === 'actives')
+
 const filteredData = computed(() => {
+  const offers = Array.isArray(props.data?.offers) ? props.data.offers : []
+  const demands = Array.isArray(props.data?.demands) ? props.data.demands : []
+
+  if (props.activeTab === 'offers') return offers
+  if (props.activeTab === 'demands') return demands
+
+  // actives => combine both and return only active rows
   if (props.activeTab === 'actives') {
-    return props.data.filter((row) => row.is_active.value === true || row.is_active.value === 1)
+    return [...offers, ...demands].filter(isActiveRow)
   }
-  return props.data
+
+  // default
+  return offers
 })
 
 function toggleBids(itemId) {
@@ -55,10 +72,11 @@ function onConfirm(bidId, status) {
   })
 }
 
-async function onDelete(itemId) {
-  askQuestion('Delete offer?', 'Are you sure you want to delete this offer? This action cannot be undone.', async () => {
+async function onDelete(itemId, type) {
+  const typeText = type === 'offer' ? 'Offer' : 'Demand'
+  askQuestion(`Delete ${typeText}?`, `Are you sure you want to delete this ${typeText}? This action cannot be undone.`, async () => {
     try {
-      await $fetch(`/api/offer/${itemId}`, { method: 'DELETE' })
+      await $fetch(`/api/${type}/${itemId}`, { method: 'DELETE' })
       await props.refresh?.()
     } catch (error) {
       showError({
@@ -73,8 +91,14 @@ async function onDelete(itemId) {
 <template>
   <section class="tab">
     <!-- Create Button For First  -->
-    <div v-if="!filteredData || filteredData.length === 0" class="tab-first-created-container">
-      <button @click="$router.push('/add/offer')" class="tab-first-created-button group">
+    <div v-if="activeTab === 'actives' && (!filteredData || filteredData.length === 0)" class="text-gray-400 text-sm text-center py-6">
+      No active offers or demands at the moment.
+    </div>
+    <div v-else-if="!filteredData || filteredData.length === 0" class="tab-first-created-container">
+      <button
+        @click="activeTab === 'offers' ? $router.push('/add/offer') : $router.push('/add/demand')"
+        class="tab-first-created-button group"
+      >
         <FilePlus class="tab-first-created-icon" />
         <span class="tab-first-created-label">
           {{ activeTab === 'offers' ? 'New Offer' : 'New Demand' }}
@@ -87,9 +111,14 @@ async function onDelete(itemId) {
     <div v-else class="tab-content">
       <div v-for="item in filteredData" :key="item.id.value" class="tab-item">
         <!-- Header -->
-        <div class="tab-item-header" v-on:click="toggleItem(item.id.value)">
-          <div class="tab-item-header-container">
-            <h3 class="tab-item-header-titile">{{ item.product.value }}</h3>
+        <div class="tab-item-header" @click="toggleItem(item.id.value)">
+          <div class="tab-item-header-container flex items-center gap-2">
+            <span v-if="item.is_active.value" class="w-2 h-2 rounded-full bg-green-500"></span>
+            <span v-else="item.is_active.value" class="w-2 h-2 rounded-full bg-gray-400"></span>
+
+            <h3 class="tab-item-header-titile">
+              {{ item.product.value }}
+            </h3>
           </div>
           <!-- <ChevronDown
             :class="[
@@ -103,7 +132,7 @@ async function onDelete(itemId) {
         <div class="tab-item-detail">
           <div class="tab-item-detail-container">
             <template v-for="d in item" :key="d.label">
-              <div v-if="!['ID', 'User', 'Bids', 'is_active'].includes(d.label)" class="tab-item-detail-data-dev">
+              <div v-if="!['ID', 'User', 'Bids', 'Is Active'].includes(d.label)" class="tab-item-detail-data-dev">
                 <span class="text-gray-400 font-semibold">{{ d.label }}</span>
                 <span class="text-white font-bold">{{ d.value }}</span>
               </div>
@@ -148,7 +177,7 @@ async function onDelete(itemId) {
           <!-- Action Button -->
           <div class="flex gap-2 mt-3 justify-end">
             <button class="edit-button">Edit</button>
-            <button class="delete-button" v-on:click="onDelete(item.id.value)">Delete</button>
+            <button class="delete-button" v-on:click="onDelete(item.id.value, item.type.value)">Delete</button>
             <!-- <button class="book-button">Book</button> -->
           </div>
         </div>
@@ -178,7 +207,7 @@ async function onDelete(itemId) {
   @apply w-full flex flex-col items-center justify-center text-center text-gray-300 sm:py-20 space-y-8;
 }
 .tab-first-created-button {
-  @apply p-8 rounded-full bg-gray-700/40 hover:bg-gray-700/60 shadow-xl 
+  @apply p-8 rounded-xl bg-gray-700/40 hover:bg-gray-700/60 shadow-xl 
          transition-all duration-300 active:scale-95 flex flex-col items-center  space-y-2 sm:space-y-4;
 }
 .tab-first-created-icon {

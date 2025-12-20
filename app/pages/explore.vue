@@ -2,7 +2,8 @@
 import { watch, ref, computed } from 'vue'
 import { XIcon, CheckIcon, ChevronDownIcon, PencilIcon, Trash2Icon } from 'lucide-vue-next'
 
-const { data, pending, error } = useFetch('/api/offer', { method: 'GET' })
+const { data: offersData, pending: offersPending, error: offersError } = useFetch('/api/offer', { method: 'GET' })
+const { data: demandsData, pending: demandsPending, error: demandsError } = useFetch('/api/demand', { method: 'GET' })
 const { user } = useUserSession()
 const { showError } = useErrorModal()
 const { showSuccess } = useSuccessModal()
@@ -25,6 +26,13 @@ const newBidPrice = ref('')
 //Editing bid
 const editingBidId = ref(null)
 const editBidPrice = ref('')
+
+const activeItems = computed(() => {
+  return type.value === 'Demands' ? demands.value : offers.value
+})
+
+const pending = computed(() => (type.value === 'Offers' ? offersPending.value : demandsPending.value))
+const error = computed(() => (type.value === 'Offers' ? offersError.value : demandsError.value))
 
 // Modal control
 async function openDetails(offer) {
@@ -131,7 +139,7 @@ function closeDetails() {
 }
 
 const offers = computed(() => {
-  const rows = data.value?.results || []
+  const rows = offersData.value?.results || []
 
   return rows.map((row) => ({
     id: row.id,
@@ -140,6 +148,7 @@ const offers = computed(() => {
 
     data: [
       { label: 'Product', value: row.product },
+      { label: 'Price', value: row.price },
       { label: 'Quantity', value: row.quantity },
       { label: 'Deal Type', value: row.deal_type },
       { label: 'Delivery Term', value: row.delivery_term },
@@ -156,17 +165,50 @@ const offers = computed(() => {
   }))
 })
 
+const demands = computed(() => {
+  const rows = demandsData.value?.results || []
+
+  return rows.map((row) => ({
+    id: row.id,
+    title: `${row.product}`,
+    subtitle: `By : ${row.nickname}`,
+
+    data: [
+      { label: 'Product', value: row.product },
+      { label: 'Target Price', value: row.target_price }, // demands column
+      { label: 'Quantity', value: row.quantity },
+
+      { label: 'Deal Type', value: row.deal_type },
+      { label: 'Delivery Term', value: row.delivery_term },
+      { label: 'Delivery Detail', value: row.delivery_detail },
+      { label: 'Transfer Zone', value: row.transfer_zone },
+
+      { label: 'Benchmark Based', value: row.benchmark_based },
+      { label: 'Payment Term', value: row.payment_term },
+      { label: 'Operation Cost', value: row.operation_cost },
+      { label: 'Down Payment', value: row.down_payment },
+
+      { label: 'Validity', value: row.validity },
+
+      // quality constraints (demands-specific)
+      { label: 'API Min', value: row.api_min },
+      { label: 'API Max', value: row.api_max },
+      { label: 'Sulfur Max', value: row.sulfur_max },
+    ],
+  }))
+})
+
 // Unique filter lists
 const dealTypes = computed(() => {
-  return [...new Set(offers.value.map((o) => o.data.find((d) => d.label === 'Deal Type')?.value).filter(Boolean))]
+  return [...new Set(activeItems.value.map((o) => getField(o, 'Deal Type')).filter((v) => v && v !== '-'))]
 })
 
 const products = computed(() => {
-  return [...new Set(offers.value.map((o) => o.data.find((d) => d.label === 'Product')?.value).filter(Boolean))]
+  return [...new Set(activeItems.value.map((o) => getField(o, 'Product')).filter((v) => v && v !== '-'))]
 })
 
 const deliveryTerms = computed(() => {
-  return [...new Set(offers.value.map((o) => o.data.find((d) => d.label === 'Delivery Term')?.value).filter(Boolean))]
+  return [...new Set(activeItems.value.map((o) => getField(o, 'Delivery Term')).filter((v) => v && v !== '-'))]
 })
 
 // Extract helper
@@ -175,13 +217,11 @@ function getField(item, label) {
 }
 
 // FILTER + SORT
-const filteredOffers = computed(() => {
-  let list = [...offers.value]
+const filteredItems = computed(() => {
+  let list = [...activeItems.value]
 
   if (selectedDeal.value) list = list.filter((o) => getField(o, 'Deal Type') === selectedDeal.value)
-
   if (selectedProduct.value) list = list.filter((o) => getField(o, 'Product') === selectedProduct.value)
-
   if (selectedDelivery.value) list = list.filter((o) => getField(o, 'Delivery Term') === selectedDelivery.value)
 
   if (sortBy.value === 'date') {
@@ -189,10 +229,22 @@ const filteredOffers = computed(() => {
   }
 
   if (sortBy.value === 'quantity') {
-    list.sort((a, b) => parseFloat(getField(a, 'Quantity')) - parseFloat(getField(b, 'Quantity')))
+    list.sort((a, b) => Number(getField(a, 'Quantity')) - Number(getField(b, 'Quantity')))
+  }
+
+  if (sortBy.value === 'price') {
+    const priceLabel = type.value === 'Offers' ? 'Price' : 'Target Price'
+    list.sort((a, b) => Number(getField(a, priceLabel)) - Number(getField(b, priceLabel)))
   }
 
   return list
+})
+
+watch(type, () => {
+  selectedDeal.value = ''
+  selectedProduct.value = ''
+  selectedDelivery.value = ''
+  sortBy.value = ''
 })
 
 watch(selectedOffer, (newVal) => {
@@ -255,6 +307,8 @@ watch(selectedOffer, (newVal) => {
           <option value="">Sort</option>
           <option value="date">Validity</option>
           <option value="quantity">Quantity</option>
+          <option v-if="type === 'Offers'" value="price">Price</option>
+          <option v-else value="price">Target Price</option>
         </select>
         <button v-if="sortBy" class="clear-btn" @click.stop="sortBy = ''" type="button">
           <XIcon class="w-3 h-3" />
@@ -267,7 +321,7 @@ watch(selectedOffer, (newVal) => {
 
     <!-- GRID LIST -->
     <div v-else class="grid lg:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-4">
-      <div v-for="item in filteredOffers" :key="item.id" class="offer-card" @click="openDetails(item)">
+      <div v-for="item in filteredItems" :key="item.id" class="offer-card" @click="openDetails(item)">
         <div class="offer-card-header">
           <h3 class="title">{{ item.title }}</h3>
           <p class="subtitle">{{ item.subtitle }}</p>
@@ -276,6 +330,19 @@ watch(selectedOffer, (newVal) => {
         <div class="grid grid-cols-2 gap-2 mt-3 text-sm">
           <div class="label">Product</div>
           <div class="value">{{ getField(item, 'Product') }}</div>
+
+          <!-- Offers: Price -->
+          <template v-if="type === 'Offers'">
+            <div class="label">Price</div>
+            <div class="value">{{ getField(item, 'Price') }}</div>
+          </template>
+
+          <!-- Demands: Target Price -->
+          <template v-else>
+            <div class="label">Target Price</div>
+            <div class="value">{{ getField(item, 'Target Price') }}</div>
+          </template>
+
           <div class="label">Quantity</div>
           <div class="value">{{ getField(item, 'Quantity') }}</div>
           <div class="label">Delivery</div>
@@ -310,79 +377,81 @@ watch(selectedOffer, (newVal) => {
             <span class="value text-right">{{ d.value }}</span>
           </div>
 
-          <div v-if="!user" class="bids-guest">
-            <div class="bids-guest-card">
-              <p class="bids-guest-title">Bids</p>
-              <p class="bids-guest-text">You must be signed in to view bids and place a bid on this offer.</p>
+          <template v-if="type === 'Offers'">
+            <div v-if="!user" class="bids-guest">
+              <div class="bids-guest-card">
+                <p class="bids-guest-title">Bids</p>
+                <p class="bids-guest-text">You must be signed in to view bids and place a bid on this offer.</p>
 
-              <div class="bids-guest-actions">
-                <NuxtLink to="/login" class="bids-guest-btn"> Sign in </NuxtLink>
+                <div class="bids-guest-actions">
+                  <NuxtLink to="/login" class="bids-guest-btn"> Sign in </NuxtLink>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- BIDS COLLAPSIBLE -->
-          <div v-else class="bids-section">
-            <button type="button" class="bids-header" @click="showBids = !showBids">
-              <span class="bids-title">
-                Bids
-                <span class="bids-count">
-                  {{ (bidsByOffer[selectedOffer.id] || []).length }}
+            <!-- BIDS COLLAPSIBLE -->
+            <div v-else class="bids-section">
+              <button type="button" class="bids-header" @click="showBids = !showBids">
+                <span class="bids-title">
+                  Bids
+                  <span class="bids-count">
+                    {{ (bidsByOffer[selectedOffer.id] || []).length }}
+                  </span>
                 </span>
-              </span>
 
-              <ChevronDownIcon class="w-5 h-5 transition-transform" :class="{ 'rotate-180': showBids }" />
-            </button>
+                <ChevronDownIcon class="w-5 h-5 transition-transform" :class="{ 'rotate-180': showBids }" />
+              </button>
 
-            <transition name="fade">
-              <div v-if="showBids" class="bids-body">
-                <!-- EXISTING BIDS -->
-                <div v-for="bid in bidsByOffer[selectedOffer.id] || []" :key="bid.id" class="bid-row">
-                  <!-- edit mode -->
-                  <template v-if="editingBidId === bid.id && bid.user_id === user.id">
-                    <span class="bid-user">{{ bid.nickname }}</span>
-                    <input v-model="editBidPrice" type="number" step="0.01" class="bids-new-input flex-1" />
-                    <div class="bid-actions">
-                      <button type="button" class="bid-btn-icon bid-btn--green" @click="saveEditBid(selectedOffer.id, bid.id)">
-                        <CheckIcon class="w-4 h-4" />
-                      </button>
+              <transition name="fade">
+                <div v-if="showBids" class="bids-body">
+                  <!-- EXISTING BIDS -->
+                  <div v-for="bid in bidsByOffer[selectedOffer.id] || []" :key="bid.id" class="bid-row">
+                    <!-- edit mode -->
+                    <template v-if="editingBidId === bid.id && bid.user_id === user.id">
+                      <span class="bid-user">{{ bid.nickname }}</span>
+                      <input v-model="editBidPrice" type="number" step="0.01" class="bids-new-input flex-1" />
+                      <div class="bid-actions">
+                        <button type="button" class="bid-btn-icon bid-btn--green" @click="saveEditBid(selectedOffer.id, bid.id)">
+                          <CheckIcon class="w-4 h-4" />
+                        </button>
 
-                      <button type="button" class="bid-btn-icon bid-btn--red" @click="cancelEditBid">
-                        <XIcon class="w-4 h-4" />
-                      </button>
-                    </div>
-                  </template>
+                        <button type="button" class="bid-btn-icon bid-btn--red" @click="cancelEditBid">
+                          <XIcon class="w-4 h-4" />
+                        </button>
+                      </div>
+                    </template>
 
-                  <!-- normal mode -->
-                  <template v-else>
-                    <span class="bid-user">{{ bid.nickname }}</span>
-                    <span class="bid-price">{{ bid.value }} USD/BBL</span>
-                    <span class="bid-time">{{ bid.created_at }}</span>
-                    <div v-if="bid.user_id === user.id" class="bid-actions">
-                      <button type="button" class="bid-btn-icon bid-btn--blue" @click="startEditBid(bid)">
-                        <PencilIcon class="w-4 h-4" />
-                      </button>
-                      <button type="button" class="bid-btn-icon bid-btn--red" @click="deleteBid(selectedOffer.id, bid.id)">
-                        <Trash2Icon class="w-4 h-4" />
-                      </button>
-                    </div>
-                  </template>
+                    <!-- normal mode -->
+                    <template v-else>
+                      <span class="bid-user">{{ bid.nickname }}</span>
+                      <span class="bid-price">{{ bid.value }} USD/BBL</span>
+                      <span class="bid-time">{{ bid.created_at }}</span>
+                      <div v-if="bid.user_id === user.id" class="bid-actions">
+                        <button type="button" class="bid-btn-icon bid-btn--blue" @click="startEditBid(bid)">
+                          <PencilIcon class="w-4 h-4" />
+                        </button>
+                        <button type="button" class="bid-btn-icon bid-btn--red" @click="deleteBid(selectedOffer.id, bid.id)">
+                          <Trash2Icon class="w-4 h-4" />
+                        </button>
+                      </div>
+                    </template>
+                  </div>
+
+                  <!-- NEW BID ROW AT BOTTOM -->
+                  <div v-if="!bidsByOffer[selectedOffer.id]?.some((bid) => bid.user_id == user.id)" class="bids-new-row">
+                    <input
+                      v-model="newBidPrice"
+                      type="number"
+                      step="0.01"
+                      placeholder="Bid (e.g. 2.25 USD/BBL)"
+                      class="bids-new-input flex-1"
+                    />
+                    <button type="button" class="bids-new-btn" @click="addBid">Bid</button>
+                  </div>
                 </div>
-
-                <!-- NEW BID ROW AT BOTTOM -->
-                <div v-if="!bidsByOffer[selectedOffer.id]?.some((bid) => bid.user_id == user.id)" class="bids-new-row">
-                  <input
-                    v-model="newBidPrice"
-                    type="number"
-                    step="0.01"
-                    placeholder="Bid (e.g. 2.25 USD/BBL)"
-                    class="bids-new-input flex-1"
-                  />
-                  <button type="button" class="bids-new-btn" @click="addBid">Bid</button>
-                </div>
-              </div>
-            </transition>
-          </div>
+              </transition>
+            </div>
+          </template>
           <!-- END BIDS COLLAPSIBLE -->
         </div>
       </div>

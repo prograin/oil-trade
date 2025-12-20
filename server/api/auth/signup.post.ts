@@ -28,7 +28,8 @@ export default defineEventHandler(async (event) => {
     .prepare('INSERT INTO users (email,  name, nickname, password) VALUES (?, ?, ?, ?)')
     .bind(email, name, nickname, passwordHash)
     .run()
-  const userId = result.lastInsertRowId ?? null
+
+  const userId = result.meta.last_row_id ?? null
 
   await setUserSession(event, {
     user: {
