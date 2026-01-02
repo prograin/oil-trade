@@ -295,7 +295,7 @@ async function onSubmit(e) {
             type="number"
             min="0"
             step="0.01"
-            placeholder="Enter price"
+            placeholder="Enter price (USD/BBL)"
             v-model="data.price"
             class="p-2 rounded text-black w-full bg-gray-100"
           />

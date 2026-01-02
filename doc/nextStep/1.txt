@@ -1,0 +1,10 @@
+user level:	gold,silver,basic
+KYC:		verifed,NoVerified
+Profile:	
+
+Language:	English,Chiness,Arabic
+quota
+barrel refine
+
+Primary data:
+Extra attributes:

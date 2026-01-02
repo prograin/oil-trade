@@ -322,7 +322,7 @@ async function onSubmit(e) {
             type="number"
             min="0"
             step="1"
-            placeholder="Enter target price"
+            placeholder="Enter target price (USD/BBL)"
             v-model="data.target_price"
             class="p-2 rounded text-black w-full bg-gray-100"
           />

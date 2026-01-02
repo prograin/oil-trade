@@ -148,8 +148,8 @@ const offers = computed(() => {
 
     data: [
       { label: 'Product', value: row.product },
-      { label: 'Price', value: row.price },
-      { label: 'Quantity', value: row.quantity },
+      { label: 'Price', value: row.price + ' USD/BBL' },
+      { label: 'Quantity', value: row.quantity + ' BBL' },
       { label: 'Deal Type', value: row.deal_type },
       { label: 'Delivery Term', value: row.delivery_term },
       { label: 'Delivery Detail', value: row.delivery_detail },
@@ -174,9 +174,9 @@ const demands = computed(() => {
     subtitle: `By : ${row.nickname}`,
 
     data: [
-      { label: 'Product', value: row.product },
-      { label: 'Target Price', value: row.target_price }, // demands column
-      { label: 'Quantity', value: row.quantity },
+      // { label: 'Product', value: row.product },
+      { label: 'Target Price', value: row.target_price + ' USD/BBL' }, // demands column
+      { label: 'Quantity', value: row.quantity + ' BBL' },
 
       { label: 'Deal Type', value: row.deal_type },
       { label: 'Delivery Term', value: row.delivery_term },
@@ -259,9 +259,9 @@ watch(selectedOffer, (newVal) => {
 <template>
   <main class="w-full max-w-full p-6 flex-1 flex flex-col items-start justify-start">
     <!-- FILTER BAR -->
-    <div class="flex flex-row flex-wrap gap-4 mb-6">
+    <div class="filter-scroll mb-6">
       <!-- Type -->
-      <div class="relative inline-block">
+      <div class="filter-item relative inline-block">
         <select v-model="type" class="filter-box pr-8">
           <option>Offers</option>
           <option>Demands</option>
@@ -269,7 +269,7 @@ watch(selectedOffer, (newVal) => {
       </div>
 
       <!-- Deal Type -->
-      <div class="relative inline-block">
+      <div class="filter-item relative inline-block">
         <select v-model="selectedDeal" class="filter-box pr-8">
           <option disabled value="">Select deal type</option>
           <option v-for="d in dealTypes" :key="d" :value="d">{{ d }}</option>
@@ -280,7 +280,7 @@ watch(selectedOffer, (newVal) => {
       </div>
 
       <!-- Product -->
-      <div class="relative inline-block">
+      <div class="filter-item relative inline-block">
         <select v-model="selectedProduct" class="filter-box pr-8">
           <option value="">Product</option>
           <option v-for="p in products" :key="p" :value="p">{{ p }}</option>
@@ -291,7 +291,7 @@ watch(selectedOffer, (newVal) => {
       </div>
 
       <!-- Delivery Term -->
-      <div class="relative inline-block">
+      <div class="filter-item relative inline-block">
         <select v-model="selectedDelivery" class="filter-box pr-8">
           <option value="">Delivery Term</option>
           <option v-for="d in deliveryTerms" :key="d" :value="d">{{ d }}</option>
@@ -302,7 +302,7 @@ watch(selectedOffer, (newVal) => {
       </div>
 
       <!-- Sort -->
-      <div class="relative inline-block">
+      <div class="filter-item relative inline-block">
         <select v-model="sortBy" class="filter-box pr-8">
           <option value="">Sort</option>
           <option value="date">Validity</option>
@@ -328,8 +328,8 @@ watch(selectedOffer, (newVal) => {
         </div>
 
         <div class="grid grid-cols-2 gap-2 mt-3 text-sm">
-          <div class="label">Product</div>
-          <div class="value">{{ getField(item, 'Product') }}</div>
+          <!-- <div class="label">Product</div>
+          <div class="value">{{ getField(item, 'Product') }}</div> -->
 
           <!-- Offers: Price -->
           <template v-if="type === 'Offers'">
@@ -438,7 +438,13 @@ watch(selectedOffer, (newVal) => {
                   </div>
 
                   <!-- NEW BID ROW AT BOTTOM -->
-                  <div v-if="!bidsByOffer[selectedOffer.id]?.some((bid) => bid.user_id == user.id)" class="bids-new-row">
+                  <div
+                    v-if="
+                      selectedOffer.data?.user_id.value !== user?.id &&
+                      !bidsByOffer[selectedOffer.id]?.some((bid) => bid.user_id == user.id)
+                    "
+                    class="bids-new-row"
+                  >
                     <input
                       v-model="newBidPrice"
                       type="number"
@@ -463,6 +469,17 @@ watch(selectedOffer, (newVal) => {
 @reference "tailwindcss";
 
 /* Filter dropdowns */
+.filter-scroll {
+  @apply flex flex-row gap-4 w-full overflow-x-auto overflow-y-hidden;
+  flex-wrap: nowrap; /* force single row */
+  -webkit-overflow-scrolling: touch; /* smooth iOS scrolling */
+  scrollbar-gutter: stable;
+}
+
+.filter-item {
+  flex: 0 0 auto; /* do not shrink; keep each select as a horizontal "chip" */
+}
+
 .filter-box {
   @apply bg-gray-700 text-gray-200 rounded-full px-3 py-1.5
          focus:ring-2 focus:ring-yellow-400
