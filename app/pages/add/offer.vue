@@ -11,6 +11,21 @@ const { showSuccess } = useSuccessModal()
 
 const errors = ref({})
 
+const negotiationOptions = [
+  { value: 'timeline', label: 'Timeline / Validity' },
+  { value: 'payment_term', label: 'Payment Term' },
+  { value: 'quantity', label: 'Quantity' },
+  { value: 'delivery_term', label: 'Delivery Term' },
+  { value: 'delivery_detail', label: 'Delivery Details' },
+  { value: 'transfer_zone', label: 'Transfer Zone / OPL' },
+  { value: 'down_payment', label: 'Down Payment' },
+  { value: 'operation_cost', label: 'Operation Cost' },
+  { value: 'benchmark_based', label: 'Benchmark Differential' },
+  { value: 'validity', label: 'Validity' },
+]
+
+const NegotiationFieldEnum = z.enum(negotiationOptions.map((o) => o.value))
+
 const data = reactive({
   document_type: 'Availability Notice – Sales Offer (SCO)',
   product: 'Light Crude Oil',
@@ -26,7 +41,9 @@ const data = reactive({
   operation_cost: 'Standard STS operation included',
   down_payment: 'After Dip Test',
   price: null,
+  percent: null,
   validity: '',
+  negotiation_field: [],
 })
 
 const schema = z.object({
@@ -44,7 +61,9 @@ const schema = z.object({
   operation_cost: z.string().min(1, 'Operation cost is required'),
   down_payment: z.string().min(1, 'Down payment is required'),
   price: z.number('Price is required').min(1, 'Price must be greater than 1'),
+  percent: z.number('Percent is required').min(0, 'Percent is required').max(100, 'Percent is required'),
   validity: z.string().min(1, 'Validity date is required'),
+  negotiation_field: z.array(NegotiationFieldEnum, { invalid_type_error: 'Negotiation fields must be in list' }).default([]),
 })
 
 async function onSubmit(e) {
@@ -57,8 +76,8 @@ async function onSubmit(e) {
     return
   }
   errors.value = {}
+  result.data.negotiation_field.push('price')
 
-  result.data['user_id'] = 1
   try {
     const res = await $fetch('/api/offer', {
       method: 'POST',
@@ -273,37 +292,47 @@ async function onSubmit(e) {
           </div>
         </div>
 
-        <div class="flex-item-field">
-          <label class="text-gray-300 text-sm mb-1">Down Payment</label>
-          <select class="p-2 rounded text-black w-full bg-gray-100" v-model="data.down_payment">
-            <option>After Dip Test</option>
-            <option>Before Dip Test</option>
-            <option>LC</option>
-            <option>BG</option>
-            <option>Escrow Account Deposit</option>
-            <option>Back To Back Deal</option>
-          </select>
-          <label v-if="errors.down_payment?.[0]" class="text-red-400 text-sm mb-1">
-            {{ errors.down_payment[0] }}
-          </label>
-        </div>
+        <div class="grid grid-cols-1 mx-0 justify-center sm:grid-cols-3 gap-4">
+          <div class="flex-item-field">
+            <label class="text-gray-300 text-sm mb-1">Down Payment</label>
+            <select class="p-2 rounded text-black w-full bg-gray-100" v-model="data.down_payment">
+              <option>After Dip Test</option>
+              <option>Before Dip Test</option>
+              <option>LC</option>
+              <option>BG</option>
+              <option>Escrow Account Deposit</option>
+              <option>Back To Back Deal</option>
+            </select>
+            <label v-if="errors.down_payment?.[0]" class="text-red-400 text-sm mb-1">
+              {{ errors.down_payment[0] }}
+            </label>
+          </div>
 
-        <!-- Price -->
-        <div class="flex-item-field">
-          <label class="text-gray-300 text-sm mb-1">Price</label>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="Enter price (USD/BBL)"
-            v-model="data.price"
-            class="p-2 rounded text-black w-full bg-gray-100"
-          />
-          <label v-if="errors.price?.[0]" class="text-red-400 text-sm mb-1">
-            {{ errors.price[0] }}
-          </label>
-        </div>
+          <!-- Price -->
+          <div class="flex-item-field">
+            <label class="text-gray-300 text-sm mb-1">Price</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Enter price (USD/BBL)"
+              v-model="data.price"
+              class="p-2 rounded text-black w-full bg-gray-100"
+            />
+            <label v-if="errors.price?.[0]" class="text-red-400 text-sm mb-1">
+              {{ errors.price[0] }}
+            </label>
+          </div>
 
+          <!-- Percent -->
+          <div class="flex-item-field">
+            <label class="text-gray-300 text-sm mb-1">Percent</label>
+            <input type="number" min="0" max="100" step="0.01" v-model="data.percent" class="p-2 rounded text-black w-full bg-gray-100" />
+            <label v-if="errors.price?.[0]" class="text-red-400 text-sm mb-1">
+              {{ errors.price[0] }}
+            </label>
+          </div>
+        </div>
         <!-- Validity -->
         <div class="flex-item-field">
           <label class="text-gray-300 text-sm mb-1">Validity</label>
@@ -312,6 +341,16 @@ async function onSubmit(e) {
             {{ errors.validity[0] }}
           </label>
         </div>
+
+        <!-- Negotiation Dropdown -->
+        <GeneralMultiSelectDropdown
+          v-model="data.negotiation_field"
+          :options="negotiationOptions"
+          label="Negotiation Fields"
+          placeholder="Select negotiation fields"
+          helper-text="Select all terms that are open for negotiation."
+          :error="errors.negotiation_field?.[0]"
+        />
 
         <!-- Buttons -->
         <div class="flex flex-row justify-end gap-2 mt-7">

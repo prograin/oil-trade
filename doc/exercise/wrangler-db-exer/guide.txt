@@ -20,6 +20,7 @@ npx wrangler d1 create oil_db --local                                   # Create
 #Execute
 npx wrangler d1 execute oil_db_test --local --file=./db/schema.sql                  # For running sql locally
 npx wrangler d1 execute oil_db_test --env dev --local --file=./db/schema.sql        # Use env variable in toml , it is not necessary
+npx wrangler d1 execute DB --local --command "UPDATE offers SET negotiation_field = json_array('price');"           # Execute command with array
 npx wrangler d1 info <DATABASE_NAME> 
 
 #Secret

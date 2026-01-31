@@ -274,7 +274,7 @@ watch(selectedItem, (v) => {
 
 /* Modal */
 .detail-panel {
-  @apply bg-gray-900 p-6 rounded shadow-2xl sm:h-[90%] sm:max-h-fit h-full sm:w-[50%] w-full overflow-y-auto;
+  @apply bg-gray-900 p-6 rounded shadow-2xl sm:h-[90%] sm:max-h-fit h-full xl:w-1/3 w-full overflow-y-auto;
 }
 .detail-panel-header {
   @apply flex justify-between items-start gap-4 flex-nowrap;

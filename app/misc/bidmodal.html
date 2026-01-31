@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bid Modal – Negotiation (History + Add Negotiation)</title>
+
+    <!-- Tailwind CDN only for quick preview (optional). Remove in Nuxt. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      /* ======================= INLINE CSS (no @apply) ======================= */
+      :root {
+        --bg: #050a14;
+
+        --panel: rgba(17, 24, 39, 0.95);
+        --panelBorder: rgba(31, 41, 55, 1);
+
+        --rowBg: rgba(31, 41, 55, 0.7);
+        --rowHover: rgba(31, 41, 55, 0.9);
+
+        --stroke: rgba(75, 85, 99, 0.55);
+
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+
+        --yellow: #facc15;
+        --yellowSoft: rgba(250, 204, 21, 0.14);
+
+        --blue: #3b82f6;
+        --blueSoft: rgba(59, 130, 246, 0.14);
+
+        --green: #22c55e;
+        --greenSoft: rgba(34, 197, 94, 0.1);
+
+        --red: #ef4444;
+        --redSoft: rgba(239, 68, 68, 0.1);
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      }
+
+      /* Backdrop + modal container */
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.58);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+
+      .detail-panel {
+        width: min(980px, 96vw);
+        height: min(92vh, 940px);
+        overflow: auto;
+        background: var(--panel);
+        border: 1px solid var(--panelBorder);
+        border-radius: 14px;
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7);
+      }
+
+      .detail-panel-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+
+        padding: 14px 18px;
+        background: rgba(17, 24, 39, 0.82);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid rgba(31, 41, 55, 1);
+      }
+
+      .detail-title {
+        font-weight: 900;
+        color: var(--yellow);
+        font-size: 18px;
+        letter-spacing: 0.2px;
+      }
+
+      .detail-subtitle {
+        margin-top: 2px;
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.35;
+      }
+
+      .bid-btn-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        background: rgba(75, 85, 99, 0.35);
+        border: 1px solid rgba(75, 85, 99, 0.55);
+        color: var(--text);
+        transition: 0.15s;
+        user-select: none;
+      }
+      .bid-btn-icon:hover {
+        background: rgba(75, 85, 99, 0.5);
+      }
+
+      .panel-inner {
+        padding: 18px;
+      }
+
+      /* Context (top key fields) */
+      .context-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+      }
+      @media (max-width: 860px) {
+        .context-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .detail-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+
+        padding: 10px 12px;
+        border-radius: 10px;
+
+        background: var(--rowBg);
+        border: 1px solid rgba(75, 85, 99, 0.45);
+        transition: 0.15s;
+      }
+      .detail-row:hover {
+        background: var(--rowHover);
+      }
+
+      .label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .value {
+        font-size: 12px;
+        font-weight: 800;
+        color: #f3f4f6;
+      }
+
+      /* Section header */
+      .bids-section {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(31, 41, 55, 1);
+      }
+
+      .bids-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+
+        padding: 10px 12px;
+        border-radius: 10px;
+
+        background: rgba(31, 41, 55, 0.75);
+        border: 1px solid rgba(75, 85, 99, 0.45);
+        transition: 0.15s;
+      }
+      .bids-header:hover {
+        background: rgba(31, 41, 55, 0.9);
+      }
+
+      .bids-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        font-weight: 900;
+        color: #e5e7eb;
+      }
+
+      .bids-count {
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(250, 204, 21, 0.25);
+        background: var(--yellowSoft);
+        color: rgba(253, 230, 138, 0.98);
+        white-space: nowrap;
+      }
+
+      /* Pills */
+      .pill {
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(75, 85, 99, 0.55);
+        background: rgba(148, 163, 184, 0.1);
+        color: rgba(229, 231, 235, 0.95);
+        white-space: nowrap;
+      }
+      .pill.pending {
+        border-color: rgba(250, 204, 21, 0.25);
+        background: rgba(250, 204, 21, 0.1);
+        color: rgba(253, 230, 138, 0.98);
+      }
+      .pill.accepted {
+        border-color: rgba(34, 197, 94, 0.25);
+        background: var(--greenSoft);
+        color: rgba(187, 247, 208, 0.98);
+      }
+      .pill.ignored {
+        border-color: rgba(239, 68, 68, 0.25);
+        background: var(--redSoft);
+        color: rgba(254, 202, 202, 0.98);
+      }
+      .pill.open {
+        border-color: rgba(34, 197, 94, 0.25);
+        background: rgba(34, 197, 94, 0.08);
+        color: rgba(187, 247, 208, 0.98);
+      }
+
+      /* ======================= Vertical history timeline ======================= */
+      .neg-timeline {
+        position: relative;
+        padding-left: 18px;
+        margin-top: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .neg-timeline::before {
+        content: '';
+        position: absolute;
+        left: 7px;
+        top: 6px;
+        bottom: 6px;
+        width: 2px;
+        background: rgba(75, 85, 99, 0.55);
+        border-radius: 2px;
+      }
+
+      /* Suggestion card */
+      .neg-card {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid rgba(75, 85, 99, 0.45);
+        background: rgba(15, 23, 42, 0.65);
+      }
+      .neg-card::before {
+        content: '';
+        position: absolute;
+        left: -18px;
+        top: 16px;
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.75);
+        border: 2px solid rgba(17, 24, 39, 0.95);
+        box-shadow: 0 0 0 2px rgba(75, 85, 99, 0.35);
+      }
+      .neg-card.buyer::before {
+        background: rgba(250, 204, 21, 0.95);
+      }
+      .neg-card.seller::before {
+        background: rgba(59, 130, 246, 0.95);
+      }
+
+      .neg-card-head {
+        padding: 10px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: rgba(31, 41, 55, 0.55);
+        border-bottom: 1px solid rgba(75, 85, 99, 0.35);
+      }
+      .neg-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .who {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(75, 85, 99, 0.55);
+        background: var(--yellowSoft);
+        color: rgba(253, 230, 138, 0.98);
+        white-space: nowrap;
+      }
+      .who.seller {
+        background: var(--blueSoft);
+        color: rgba(191, 219, 254, 0.98);
+      }
+
+      .meta {
+        font-size: 12px;
+        color: var(--muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .neg-card-body {
+        padding: 10px 12px;
+      }
+
+      .neg-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid rgba(75, 85, 99, 0.35);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .neg-table th,
+      .neg-table td {
+        padding: 9px 10px;
+        border-bottom: 1px solid rgba(75, 85, 99, 0.22);
+        font-size: 13px;
+      }
+      .neg-table th {
+        text-align: left;
+        font-weight: 900;
+        color: rgba(203, 213, 225, 0.95);
+        background: rgba(31, 41, 55, 0.55);
+      }
+      .neg-table td {
+        background: rgba(11, 18, 32, 0.35);
+        color: rgba(229, 231, 235, 0.95);
+        vertical-align: middle;
+      }
+
+      .field-status {
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(75, 85, 99, 0.55);
+        background: rgba(148, 163, 184, 0.1);
+        white-space: nowrap;
+      }
+      .field-status.pending {
+        border-color: rgba(250, 204, 21, 0.25);
+        background: rgba(250, 204, 21, 0.08);
+        color: rgba(253, 230, 138, 0.98);
+      }
+      .field-status.accepted {
+        border-color: rgba(34, 197, 94, 0.25);
+        background: rgba(34, 197, 94, 0.08);
+        color: rgba(187, 247, 208, 0.98);
+      }
+      .field-status.denied,
+      .field-status.ignored {
+        border-color: rgba(239, 68, 68, 0.25);
+        background: rgba(239, 68, 68, 0.08);
+        color: rgba(254, 202, 202, 0.98);
+      }
+
+      /* Optional seller review buttons (accept/deny/ignore per field) */
+      .field-cell {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .review-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+      .mini-btn {
+        font-size: 12px;
+        padding: 6px 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(75, 85, 99, 0.55);
+        background: rgba(75, 85, 99, 0.22);
+        color: rgba(229, 231, 235, 0.95);
+        transition: 0.15s;
+        user-select: none;
+      }
+      .mini-btn:hover {
+        background: rgba(75, 85, 99, 0.35);
+      }
+      .mini-btn.ok {
+        border-color: rgba(34, 197, 94, 0.35);
+        background: rgba(34, 197, 94, 0.12);
+      }
+      .mini-btn.no {
+        border-color: rgba(239, 68, 68, 0.35);
+        background: rgba(239, 68, 68, 0.12);
+      }
+      .mini-btn.ign {
+        border-color: rgba(239, 68, 68, 0.35);
+        background: rgba(239, 68, 68, 0.08);
+      }
+
+      .comment-box {
+        margin-top: 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(75, 85, 99, 0.35);
+        background: rgba(11, 18, 32, 0.35);
+        padding: 10px;
+      }
+      .comment-title {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .comment-text {
+        margin-top: 6px;
+        font-size: 13px;
+        color: rgba(229, 231, 235, 0.92);
+      }
+
+      /* ======================= Add negotiation builder ======================= */
+      .builder {
+        margin-top: 14px;
+        border: 1px solid rgba(75, 85, 99, 0.45);
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(15, 23, 42, 0.75);
+      }
+      .builder-head {
+        padding: 10px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        background: rgba(31, 41, 55, 0.55);
+        border-bottom: 1px solid rgba(75, 85, 99, 0.35);
+      }
+      .builder-title {
+        font-weight: 900;
+        color: rgba(243, 244, 246, 0.98);
+      }
+
+      .builder-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1.8fr auto;
+        gap: 10px;
+        padding: 12px;
+      }
+      @media (max-width: 720px) {
+        .builder-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .field-label {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 6px;
+        display: block;
+      }
+
+      .input,
+      .select,
+      .textarea {
+        width: 100%;
+        background: rgba(11, 18, 32, 0.65);
+        border: 1px solid rgba(75, 85, 99, 0.55);
+        color: var(--text);
+        padding: 9px 10px;
+        border-radius: 10px;
+        outline: none;
+        font-size: 13px;
+      }
+      .input:focus,
+      .select:focus,
+      .textarea:focus {
+        box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.45);
+        border-color: rgba(250, 204, 21, 0.42);
+      }
+
+      .add-btn {
+        height: 40px;
+        padding: 0 14px;
+        border-radius: 10px;
+        background: rgba(59, 130, 246, 0.92);
+        border: 1px solid rgba(59, 130, 246, 0.35);
+        color: #fff;
+        font-weight: 900;
+        transition: 0.15s;
+        white-space: nowrap;
+      }
+      .add-btn:hover {
+        background: rgba(59, 130, 246, 1);
+      }
+
+      .draft-list {
+        padding: 0 12px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .draft-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px;
+        border-radius: 10px;
+        background: rgba(31, 41, 55, 0.75);
+        border: 1px solid rgba(75, 85, 99, 0.45);
+      }
+      .chip {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid rgba(250, 204, 21, 0.25);
+        background: rgba(250, 204, 21, 0.12);
+        color: rgba(253, 230, 138, 0.98);
+        flex: 0 0 auto;
+      }
+      .draft-main {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        flex: 1;
+      }
+      .draft-value {
+        font-weight: 900;
+        color: rgba(243, 244, 246, 0.98);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .draft-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .btn {
+        font-size: 12px;
+        padding: 7px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(75, 85, 99, 0.55);
+        background: rgba(75, 85, 99, 0.22);
+        color: rgba(229, 231, 235, 0.95);
+        transition: 0.15s;
+      }
+      .btn:hover {
+        background: rgba(75, 85, 99, 0.35);
+      }
+      .btn.red {
+        background: rgba(239, 68, 68, 0.9);
+        border-color: rgba(239, 68, 68, 0.35);
+        color: #fff;
+      }
+      .btn.red:hover {
+        background: rgba(239, 68, 68, 1);
+      }
+      .btn.primary {
+        background: rgba(250, 204, 21, 0.95);
+        border-color: rgba(250, 204, 21, 0.35);
+        color: #0b1220;
+        font-weight: 900;
+      }
+      .btn.primary:hover {
+        background: rgba(250, 204, 21, 1);
+      }
+
+      .builder-foot {
+        padding: 12px;
+        border-top: 1px solid rgba(75, 85, 99, 0.35);
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        background: rgba(15, 23, 42, 0.55);
+      }
+
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 0 12px 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="backdrop">
+      <div class="detail-panel" role="dialog" aria-modal="true" aria-label="Bid Modal">
+        <!-- Header -->
+        <div class="detail-panel-header">
+          <div>
+            <div class="detail-title">Bid / Negotiation (چونه زدن)</div>
+            <div class="detail-subtitle">
+              History is vertical. Seller can accept/deny/ignore each field. If any field is denied or ignored, that whole suggestion is
+              ignored and buyer must submit a new negotiation.
+            </div>
+          </div>
+          <button class="bid-btn-icon" type="button" aria-label="Close">✕</button>
+        </div>
+
+        <div class="panel-inner">
+          <!-- Context -->
+          <div class="context-grid">
+            <div class="detail-row">
+              <span class="label">Product</span>
+              <span class="value">Heavy Crude Oil</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Listed Price</span>
+              <span class="value">66.75 USD/BBL</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Quantity</span>
+              <span class="value">200000 BBL</span>
+            </div>
+          </div>
+
+          <!-- Negotiation History -->
+          <div class="bids-section">
+            <div class="bids-header">
+              <div class="bids-title">
+                Negotiation History
+                <span class="bids-count">8 suggestions</span>
+              </div>
+              <span class="pill open">Open</span>
+            </div>
+
+            <div class="neg-timeline">
+              <!-- Suggestion #1 (Buyer) - Ignored because one field denied -->
+              <div class="neg-card buyer">
+                <div class="neg-card-head">
+                  <div class="neg-left">
+                    <span class="who">Your Suggestion</span>
+                    <span class="meta">2026-01-03 10:10 · ID: B-001</span>
+                  </div>
+                  <span class="pill ignored">Ignored</span>
+                </div>
+
+                <div class="neg-card-body">
+                  <table class="neg-table" aria-label="Buyer suggestion fields">
+                    <thead>
+                      <tr>
+                        <th style="width: 34%">Field</th>
+                        <th>Value</th>
+                        <th style="width: 32%">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Price (USD/BBL)</td>
+                        <td><b>65.40 USD/BBL</b></td>
+                        <td>
+                          <div class="field-cell">
+                            <span class="field-status denied">Denied</span>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Payment Term</td>
+                        <td><b>LC at sight</b></td>
+                        <td>
+                          <div class="field-cell">
+                            <span class="field-status accepted">Accepted</span>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div class="comment-box">
+                    <div class="comment-title">Comment</div>
+                    <div class="comment-text">Can confirm within 24h. Flexible on discharge window.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Suggestion #2 (Seller) - Pending, includes per-field review controls (example) -->
+              <div class="neg-card seller">
+                <div class="neg-card-head">
+                  <div class="neg-left">
+                    <span class="who seller">Seller Suggestion</span>
+                    <span class="meta">2026-01-03 10:35 · ID: S-001</span>
+                  </div>
+                  <span class="pill pending">Pending</span>
+                </div>
+
+                <div class="neg-card-body">
+                  <table class="neg-table" aria-label="Seller suggestion fields">
+                    <thead>
+                      <tr>
+                        <th style="width: 34%">Field</th>
+                        <th>Value</th>
+                        <th style="width: 32%">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Price (USD/BBL)</td>
+                        <td><b>66.30 USD/BBL</b></td>
+                        <td>
+                          <div class="field-cell">
+                            <span class="field-status pending">Pending</span>
+                            <div class="review-actions" title="Seller review controls example">
+                              <button class="mini-btn ok" type="button">✓</button>
+                              <button class="mini-btn no" type="button">✕</button>
+                              <button class="mini-btn ign" type="button">Ignore</button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Payment Term</td>
+                        <td><b>SBLC</b></td>
+                        <td>
+                          <div class="field-cell">
+                            <span class="field-status pending">Pending</span>
+                            <div class="review-actions">
+                              <button class="mini-btn ok" type="button">✓</button>
+                              <button class="mini-btn no" type="button">✕</button>
+                              <button class="mini-btn ign" type="button">Ignore</button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div class="comment-box">
+                    <div class="comment-title">Comment</div>
+                    <div class="comment-text">Price is firm unless bank is confirmed top-tier.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Suggestion #3 (Buyer) - Pending -->
+              <div class="neg-card buyer">
+                <div class="neg-card-head">
+                  <div class="neg-left">
+                    <span class="who">Your Suggestion</span>
+                    <span class="meta">2026-01-03 11:05 · ID: B-002</span>
+                  </div>
+                  <span class="pill pending">Pending</span>
+                </div>
+
+                <div class="neg-card-body">
+                  <table class="neg-table" aria-label="Buyer suggestion fields">
+                    <thead>
+                      <tr>
+                        <th style="width: 34%">Field</th>
+                        <th>Value</th>
+                        <th style="width: 32%">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Price (USD/BBL)</td>
+                        <td><b>65.90 USD/BBL</b></td>
+                        <td>
+                          <div class="field-cell">
+                            <span class="field-status pending">Pending</span>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Delivery Detail (Port/Terminal)</td>
+                        <td><b>CFR Qingdao (or Ningbo)</b></td>
+                        <td>
+                          <div class="field-cell">
+                            <span class="field-status pending">Pending</span>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>Payment Term</td>
+                        <td><b>LC at sight (Top-50 bank)</b></td>
+                        <td>
+                          <div class="field-cell">
+                            <span class="field-status pending">Pending</span>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div class="comment-box">
+                    <div class="comment-title">Comment</div>
+                    <div class="comment-text">Alternative port is acceptable if Qingdao unavailable.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Negotiation (NOT "new offer" wording) -->
+          <div class="bids-section">
+            <div class="bids-header">
+              <div class="bids-title">
+                Add Negotiation
+                <span class="bids-count">Draft</span>
+              </div>
+              <span class="pill pending">Build suggestion</span>
+            </div>
+
+            <div class="builder">
+              <div class="builder-head">
+                <div>
+                  <div class="builder-title">Your negotiation fields</div>
+                  <div class="detail-subtitle">
+                    Select a field, enter value (or choose option), press “+ Add”. Add multiple fields and optional comment, then submit.
+                  </div>
+                </div>
+              </div>
+
+              <div class="builder-grid">
+                <div>
+                  <label class="field-label" for="fieldSelect">Negotiation Field</label>
+                  <select class="select" id="fieldSelect">
+                    <option value="" selected disabled>Select field…</option>
+                    <option value="price">Price (USD/BBL)</option>
+                    <option value="delivery_term">Delivery Term</option>
+                    <option value="delivery_detail">Delivery Detail (Port/Terminal)</option>
+                    <option value="payment_term">Payment Term</option>
+                    <option value="benchmark">Benchmark Differential</option>
+                    <option value="quantity">Quantity (BBL)</option>
+                    <option value="validity">Validity</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="field-label" for="valueInput">Your Value</label>
+                  <input class="input" id="valueInput" placeholder="Enter value…" />
+                </div>
+
+                <div style="display: flex; align-items: end">
+                  <button class="add-btn" type="button">+ Add</button>
+                </div>
+              </div>
+
+              <div class="draft-list">
+                <div class="draft-item">
+                  <div class="draft-main">
+                    <span class="chip">Price</span>
+                    <div style="min-width: 0">
+                      <div class="draft-value">Price (USD/BBL): 65.90 USD/BBL</div>
+                      <div class="label">Draft</div>
+                    </div>
+                  </div>
+                  <div class="draft-actions">
+                    <button class="btn" type="button">Edit</button>
+                    <button class="btn red" type="button">Remove</button>
+                  </div>
+                </div>
+
+                <div class="draft-item">
+                  <div class="draft-main">
+                    <span class="chip">Payment</span>
+                    <div style="min-width: 0">
+                      <div class="draft-value">Payment Term: LC at sight (Top-50 bank)</div>
+                      <div class="label">Draft</div>
+                    </div>
+                  </div>
+                  <div class="draft-actions">
+                    <button class="btn" type="button">Edit</button>
+                    <button class="btn red" type="button">Remove</button>
+                  </div>
+                </div>
+
+                <div class="draft-item">
+                  <div class="draft-main">
+                    <span class="chip">Delivery</span>
+                    <div style="min-width: 0">
+                      <div class="draft-value">Delivery Detail (Port/Terminal): CFR Qingdao (or Ningbo)</div>
+                      <div class="label">Draft</div>
+                    </div>
+                  </div>
+                  <div class="draft-actions">
+                    <button class="btn" type="button">Edit</button>
+                    <button class="btn red" type="button">Remove</button>
+                  </div>
+                </div>
+              </div>
+
+              <div style="padding: 0 12px 12px">
+                <label class="field-label" for="commentBox">Comment (optional)</label>
+                <textarea
+                  id="commentBox"
+                  class="textarea"
+                  rows="4"
+                  placeholder="Add a note for the seller (timeline, inspection, documents, flexibility, etc.)"
+                ></textarea>
+              </div>
+
+              <div class="builder-foot">
+                <button class="btn" type="button">Cancel</button>
+                <button class="btn primary" type="button">Submit Negotiation</button>
+              </div>
+
+              <div class="hint">
+                UI rule: Seller reviews field-by-field. If any field is denied/ignored, the suggestion is ignored. Buyer then submits a new
+                negotiation.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

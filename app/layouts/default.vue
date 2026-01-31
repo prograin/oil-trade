@@ -25,6 +25,16 @@ const handleClickOutside = (event) => {
   }
 }
 
+const titlePage = computed(() => {
+  const path = route.path
+  let title = ''
+  title = path.startsWith('/dashboard') ? 'Dashboard' : null
+  if (title) return title
+  title = path.startsWith('/explore') ? 'Explore' : ''
+
+  return title
+})
+
 onMounted(() => document.addEventListener('click', handleClickOutside))
 onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside))
 
@@ -54,6 +64,8 @@ const onLogout = async () => {
     <header class="layout-header">
       <div class="layout-header-container">
         <NuxtLink to="/" class="layout-header-home-link">Black Wall</NuxtLink>
+
+        <p class="layout-header-title">{{ titlePage }}</p>
 
         <!-- Home -->
         <nav v-if="route.path === '/'" class="space-x-4 flex items-center">
@@ -149,6 +161,9 @@ const onLogout = async () => {
 }
 .layout-header-home-link {
   @apply text-2xl font-bold text-yellow-400 transition-transform transition-colors duration-200 hover:text-yellow-500 hover:scale-105;
+}
+.layout-header-title {
+  @apply text-2xl font-semibold text-yellow-400;
 }
 .layout-header-container > nav {
   @apply space-x-6;

@@ -1,6 +1,28 @@
+<!--
+For Bid :
+ we show bid like this:
+  name    value     time    collapse/extend
+    -----
+    |field     value     accepted/ignored
+    |field     value     accepted/ignored
+    |field     value     accepted/ignored
+    -----
+
+    -----
+    |field     value     accepted/ignored
+    |field     value     accepted/ignored
+    |field     value     accepted/ignored
+    -----
+
+    Open Bid Button | for owner and bidder
+
+  Bid Button | for someone whoe doesnt have any active bid
+-->
+
 <script setup>
 import { watch, ref, computed } from 'vue'
 import { XIcon, CheckIcon, ChevronDownIcon, PencilIcon, Trash2Icon } from 'lucide-vue-next'
+import { negotiationFieldToLabelValue } from '~/utils/field-mapper'
 
 const { data: offersData, pending: offersPending, error: offersError } = useFetch('/api/offer', { method: 'GET' })
 const { data: demandsData, pending: demandsPending, error: demandsError } = useFetch('/api/demand', { method: 'GET' })
@@ -26,6 +48,9 @@ const newBidPrice = ref('')
 //Editing bid
 const editingBidId = ref(null)
 const editBidPrice = ref('')
+
+const isBidModalOpen = ref(false)
+const modalOffer = ref(null)
 
 const activeItems = computed(() => {
   return type.value === 'Demands' ? demands.value : offers.value
@@ -80,7 +105,8 @@ async function addBid() {
 }
 
 // Start Edit Bid
-function startEditBid(bid) {
+function startEditBid(bid, offer) {
+  openBidModal(offer)
   editingBidId.value = bid.id
   editBidPrice.value = bid.price
 }
@@ -138,6 +164,34 @@ function closeDetails() {
   selectedOffer.value = null
 }
 
+const openBidModal = (offer, bid = null) => {
+  if (!offer) return
+
+  editingBidId.value = bid ? bid.id : null
+  editBidPrice.value = bid ? bid.price : null
+  modalOffer.value = offer
+  isBidModalOpen.value = true
+}
+
+const closeBidModal = () => {
+  isBidModalOpen.value = false
+  modalOffer.value = null
+  cancelEditBid()
+}
+
+// Optional: when modal submits, refresh list / close modal
+const onBidSubmitted = async () => {
+  // example:
+  // await fetchBidsForOffer(modalOffer.value!.id)
+  closeBidModal()
+}
+
+const unitByLabel = {
+  Quantity: 'BBL',
+  Price: 'USD/BBL',
+  'Target Price': 'USD/BBL',
+}
+
 const offers = computed(() => {
   const rows = offersData.value?.results || []
 
@@ -145,11 +199,12 @@ const offers = computed(() => {
     id: row.id,
     title: `${row.product}`,
     subtitle: `By : ${row.nickname}`,
+    negotiation_field: negotiationFieldToLabelValue(row.negotiation_field),
 
     data: [
       { label: 'Product', value: row.product },
-      { label: 'Price', value: row.price + ' USD/BBL' },
-      { label: 'Quantity', value: row.quantity + ' BBL' },
+      { label: 'Price', value: row.price },
+      { label: 'Quantity', value: row.quantity },
       { label: 'Deal Type', value: row.deal_type },
       { label: 'Delivery Term', value: row.delivery_term },
       { label: 'Delivery Detail', value: row.delivery_detail },
@@ -175,8 +230,8 @@ const demands = computed(() => {
 
     data: [
       // { label: 'Product', value: row.product },
-      { label: 'Target Price', value: row.target_price + ' USD/BBL' }, // demands column
-      { label: 'Quantity', value: row.quantity + ' BBL' },
+      { label: 'Target Price', value: row.target_price }, // demands column
+      { label: 'Quantity', value: row.quantity },
 
       { label: 'Deal Type', value: row.deal_type },
       { label: 'Delivery Term', value: row.delivery_term },
@@ -229,7 +284,10 @@ const filteredItems = computed(() => {
   }
 
   if (sortBy.value === 'quantity') {
-    list.sort((a, b) => Number(getField(a, 'Quantity')) - Number(getField(b, 'Quantity')))
+    list.sort((a, b) => {
+      console.log(a)
+      return Number(getField(a, 'Quantity')) - Number(getField(b, 'Quantity'))
+    })
   }
 
   if (sortBy.value === 'price') {
@@ -334,17 +392,17 @@ watch(selectedOffer, (newVal) => {
           <!-- Offers: Price -->
           <template v-if="type === 'Offers'">
             <div class="label">Price</div>
-            <div class="value">{{ getField(item, 'Price') }}</div>
+            <div class="value">{{ getField(item, 'Price') }} USD/BBL</div>
           </template>
 
           <!-- Demands: Target Price -->
           <template v-else>
             <div class="label">Target Price</div>
-            <div class="value">{{ getField(item, 'Target Price') }}</div>
+            <div class="value">{{ getField(item, 'Target Price') }} USD/BBL</div>
           </template>
 
           <div class="label">Quantity</div>
-          <div class="value">{{ getField(item, 'Quantity') }}</div>
+          <div class="value">{{ getField(item, 'Quantity') }} BBL</div>
           <div class="label">Delivery</div>
           <div class="value">{{ getField(item, 'Delivery Term') }}</div>
           <div class="label">Payment</div>
@@ -374,7 +432,7 @@ watch(selectedOffer, (newVal) => {
           <!-- OFFERS DATA -->
           <div v-for="d in selectedOffer.data" :key="d.label" class="detail-row">
             <span class="label">{{ d.label }}</span>
-            <span class="value text-right">{{ d.value }}</span>
+            <span class="value text-right">{{ d.value }} {{ unitByLabel[d.label] ?? '' }}</span>
           </div>
 
           <template v-if="type === 'Offers'">
@@ -407,7 +465,8 @@ watch(selectedOffer, (newVal) => {
                   <!-- EXISTING BIDS -->
                   <div v-for="bid in bidsByOffer[selectedOffer.id] || []" :key="bid.id" class="bid-row">
                     <!-- edit mode -->
-                    <template v-if="editingBidId === bid.id && bid.user_id === user.id">
+                    <!-- FIXED -->
+                    <!-- <template v-if="editingBidId === bid.id && bid.user_id === user.id">
                       <span class="bid-user">{{ bid.nickname }}</span>
                       <input v-model="editBidPrice" type="number" step="0.01" class="bids-new-input flex-1" />
                       <div class="bid-actions">
@@ -419,41 +478,58 @@ watch(selectedOffer, (newVal) => {
                           <XIcon class="w-4 h-4" />
                         </button>
                       </div>
-                    </template>
+                    </template> -->
 
                     <!-- normal mode -->
-                    <template v-else>
-                      <span class="bid-user">{{ bid.nickname }}</span>
-                      <span class="bid-price">{{ bid.value }} USD/BBL</span>
-                      <span class="bid-time">{{ bid.created_at }}</span>
-                      <div v-if="bid.user_id === user.id" class="bid-actions">
-                        <button type="button" class="bid-btn-icon bid-btn--blue" @click="startEditBid(bid)">
-                          <PencilIcon class="w-4 h-4" />
-                        </button>
-                        <button type="button" class="bid-btn-icon bid-btn--red" @click="deleteBid(selectedOffer.id, bid.id)">
-                          <Trash2Icon class="w-4 h-4" />
-                        </button>
-                      </div>
-                    </template>
+                    <!-- <template> -->
+                    <span class="bid-user">{{ bid.nickname }}</span>
+                    <span class="bid-price">{{ bid.value }} USD/BBL</span>
+                    <span class="bid-time">{{ bid.created_at }}</span>
+                    <div v-if="bid.user_id === user.id" class="bid-actions">
+                      <button type="button" class="bid-btn-icon bid-btn--blue" @click="openBidModal(selectedOffer, bid)">
+                        <PencilIcon class="w-4 h-4" />
+                      </button>
+                      <button type="button" class="bid-btn-icon bid-btn--red" @click="deleteBid(selectedOffer.id, bid.id)">
+                        <Trash2Icon class="w-4 h-4" />
+                      </button>
+                    </div>
+                    <!-- </template> -->
                   </div>
 
                   <!-- NEW BID ROW AT BOTTOM -->
-                  <div
-                    v-if="
-                      selectedOffer.data?.user_id.value !== user?.id &&
-                      !bidsByOffer[selectedOffer.id]?.some((bid) => bid.user_id == user.id)
-                    "
-                    class="bids-new-row"
-                  >
-                    <input
+                  <div v-if="!bidsByOffer[selectedOffer.id]?.some((bid) => bid.user_id == user.id)" class="bids-new-row">
+                    <!-- <input
                       v-model="newBidPrice"
                       type="number"
                       step="0.01"
                       placeholder="Bid (e.g. 2.25 USD/BBL)"
                       class="bids-new-input flex-1"
                     />
-                    <button type="button" class="bids-new-btn" @click="addBid">Bid</button>
+                    <button type="button" class="bids-new-btn" @click="addBid">Bid</button> -->
+                    <button type="button" class="bids-new-btn" @click="openBidModal(selectedOffer)">Bid</button>
                   </div>
+
+                  <Teleport to="body">
+                    <transition name="fade">
+                      <GeneralBidModal
+                        v-if="isBidModalOpen && modalOffer"
+                        :from="'explore'"
+                        :viewerRole="selectedOffer.user_id === user.id ? 'seller' : 'buyer'"
+                        :offer="{
+                          id: selectedOffer.id,
+                          quantity: getField(modalOffer, 'Quantity'),
+                          price: getField(modalOffer, 'Price'),
+                          product: getField(modalOffer, 'Product'),
+                        }"
+                        :negotiation_field="selectedOffer.negotiation_field"
+                        :bids="bidsByOffer[modalOffer.id] || []"
+                        :bid_id="editingBidId"
+                        :user="user"
+                        @close="closeBidModal"
+                        @submitted="onBidSubmitted"
+                      />
+                    </transition>
+                  </Teleport>
                 </div>
               </transition>
             </div>
@@ -517,8 +593,7 @@ watch(selectedOffer, (newVal) => {
 
 /* Modal */
 .detail-panel {
-  @apply bg-gray-900 p-6 rounded shadow-2xl
-         sm:h-[90%] sm:max-h-fit h-full sm:w-[50%] w-full overflow-y-auto;
+  @apply bg-gray-900 p-6 rounded shadow-2xl sm:h-[90%] sm:max-h-fit h-full xl:w-1/3 w-full overflow-y-auto;
 }
 .detail-panel-header {
   @apply flex justify-between items-center flex-nowrap;
@@ -617,7 +692,7 @@ watch(selectedOffer, (newVal) => {
          focus:outline-none focus:ring-2 focus:ring-yellow-400;
 }
 .bids-new-btn {
-  @apply px-3 py-1 text-sm font-semibold
+  @apply w-full px-3 py-1 text-sm font-semibold
          bg-yellow-500 text-gray-900 rounded
          hover:bg-yellow-400 transition;
 }

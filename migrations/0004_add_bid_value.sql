@@ -1,0 +1,3 @@
+-- Migration number: 0004 	 2026-01-09T08:24:49.809Z
+ALTER TABLE bids
+ADD COLUMN value REAL;

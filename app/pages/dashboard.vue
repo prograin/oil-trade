@@ -38,7 +38,7 @@ const activeRefresh = () => {
   <main class="dashboard">
     <div class="dashboard-header">
       <section v-if="user" class="dashboard-user-info">
-        <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="User Avatar" class="rounded" />
+        <!-- <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="User Avatar" class="rounded" /> -->
         <div class="user-details grid grid-cols-2 gap-x-4">
           <p class="user-name text-yellow-400 font-bold col-span-2">{{ user.nickname }}</p>
           <span class="text-yellow-400 font-semibold">Sales</span>

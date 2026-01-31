@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Negotiation UI - Mobile</title>
+    <style>
+      :root {
+        --bg: #0b0d12;
+        --card: #121624;
+        --muted: #8a92a6;
+        --text: #eef2ff;
+        --line: rgba(255, 255, 255, 0.08);
+        --ok: #21c55d;
+        --warn: #fbbf24;
+        --bad: #ef4444;
+        --chip: #1b2236;
+        --btn: #1f2a44;
+        --btn2: #28365a;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        --radius: 18px;
+        --radius2: 14px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, 'Noto Sans Arabic', 'Noto Sans', sans-serif;
+        background: radial-gradient(1200px 700px at 50% -10%, rgba(99, 102, 241, 0.18), transparent 60%),
+          radial-gradient(900px 600px at 10% 20%, rgba(34, 197, 94, 0.1), transparent 55%), var(--bg);
+        color: var(--text);
+      }
+      .app {
+        max-width: 520px;
+        margin: 0 auto;
+        padding: 14px 12px 22px;
+      }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        backdrop-filter: blur(10px);
+        background: linear-gradient(to bottom, rgba(11, 13, 18, 0.92), rgba(11, 13, 18, 0.65));
+        padding: 10px 4px 12px;
+        border-bottom: 1px solid var(--line);
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .title {
+        font-weight: 800;
+        font-size: 16px;
+        letter-spacing: 0.2px;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 4px;
+      }
+      .status {
+        font-size: 12px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: rgba(99, 102, 241, 0.12);
+        border: 1px solid rgba(99, 102, 241, 0.25);
+        white-space: nowrap;
+      }
+      .chips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+      .chip {
+        font-size: 12px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: var(--chip);
+        border: 1px solid var(--line);
+        color: rgba(238, 242, 255, 0.9);
+      }
+
+      .grid {
+        display: grid;
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .card {
+        background: linear-gradient(180deg, rgba(18, 22, 36, 0.95), rgba(18, 22, 36, 0.85));
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      .cardHeader {
+        padding: 12px 12px 10px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .cardHeader .h {
+        font-weight: 800;
+        font-size: 14px;
+        line-height: 1.2;
+      }
+      .ver {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .badge {
+        font-size: 11px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--line);
+        color: rgba(238, 242, 255, 0.85);
+        white-space: nowrap;
+      }
+      .cardBody {
+        padding: 12px;
+      }
+      .field {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 10px;
+        border-radius: var(--radius2);
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.02);
+        margin-bottom: 10px;
+      }
+      .field:last-child {
+        margin-bottom: 0;
+      }
+      .label {
+        color: var(--muted);
+        font-size: 12px;
+        min-width: 90px;
+      }
+      .valueWrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        text-align: left;
+      }
+      .value {
+        font-weight: 750;
+        font-size: 13px;
+      }
+      .tag {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.04);
+        color: rgba(238, 242, 255, 0.85);
+      }
+      .tag.ok {
+        border-color: rgba(34, 197, 94, 0.25);
+        background: rgba(34, 197, 94, 0.1);
+      }
+      .tag.chg {
+        border-color: rgba(251, 191, 36, 0.3);
+        background: rgba(251, 191, 36, 0.12);
+      }
+      .tag.bad {
+        border-color: rgba(239, 68, 68, 0.28);
+        background: rgba(239, 68, 68, 0.12);
+      }
+      .chgField {
+        outline: 2px solid rgba(251, 191, 36, 0.28);
+        background: rgba(251, 191, 36, 0.05);
+      }
+      .btnRow {
+        display: flex;
+        gap: 10px;
+        padding: 12px;
+        border-top: 1px solid var(--line);
+        flex-wrap: wrap;
+      }
+      button {
+        appearance: none;
+        border: 1px solid var(--line);
+        background: var(--btn);
+        color: var(--text);
+        border-radius: 14px;
+        padding: 10px 12px;
+        font-weight: 750;
+        font-size: 13px;
+        flex: 1;
+        min-width: 120px;
+        cursor: pointer;
+        transition: transform 0.06s ease, background 0.2s ease, border-color 0.2s ease;
+        touch-action: manipulation;
+      }
+      button:active {
+        transform: scale(0.99);
+      }
+      button.primary {
+        background: rgba(99, 102, 241, 0.18);
+        border-color: rgba(99, 102, 241, 0.35);
+      }
+      button.good {
+        background: rgba(34, 197, 94, 0.14);
+        border-color: rgba(34, 197, 94, 0.3);
+      }
+      button.warn {
+        background: rgba(251, 191, 36, 0.14);
+        border-color: rgba(251, 191, 36, 0.3);
+      }
+      button.bad {
+        background: rgba(239, 68, 68, 0.12);
+        border-color: rgba(239, 68, 68, 0.3);
+      }
+      button.ghost {
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .sectionTitle {
+        margin: 14px 4px 8px;
+        color: rgba(238, 242, 255, 0.92);
+        font-weight: 850;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .diff {
+        padding: 10px 12px 12px;
+      }
+      .diffRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 10px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.02);
+        margin-bottom: 10px;
+      }
+      .diffRow:last-child {
+        margin-bottom: 0;
+      }
+      .diffKey {
+        color: var(--muted);
+        font-size: 12px;
+        min-width: 80px;
+      }
+      .diffVal {
+        font-size: 12px;
+        text-align: left;
+        line-height: 1.3;
+      }
+      .arrow {
+        opacity: 0.6;
+        padding: 0 6px;
+      }
+      .notes {
+        padding: 10px 12px 12px;
+        display: grid;
+        gap: 10px;
+      }
+      textarea {
+        width: 100%;
+        min-height: 86px;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text);
+        padding: 10px 12px;
+        font-size: 13px;
+        resize: vertical;
+        outline: none;
+      }
+      .templates {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .tpl {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.03);
+        color: rgba(238, 242, 255, 0.92);
+        border-radius: 999px;
+        padding: 8px 10px;
+        font-size: 12px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .footerActions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .small {
+        font-size: 11px;
+        color: var(--muted);
+        padding: 0 4px 10px;
+        line-height: 1.6;
+      }
+
+      /* Modal */
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 10px 12px 18px;
+        z-index: 10;
+      }
+      .backdrop.show {
+        display: flex;
+      }
+      .sheet {
+        width: 100%;
+        max-width: 520px;
+        background: linear-gradient(180deg, rgba(18, 22, 36, 0.98), rgba(18, 22, 36, 0.92));
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      .sheetHeader {
+        padding: 12px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .sheetHeader .h {
+        font-weight: 900;
+        font-size: 14px;
+      }
+      .sheetBody {
+        padding: 12px;
+        display: grid;
+        gap: 10px;
+      }
+      .ctl {
+        display: grid;
+        gap: 6px;
+      }
+      .ctl label {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      input,
+      select {
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text);
+        padding: 10px 12px;
+        font-size: 13px;
+        outline: none;
+      }
+      .helper {
+        padding: 10px 12px;
+        border-radius: 16px;
+        border: 1px dashed rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .helperTitle {
+        font-weight: 850;
+        font-size: 12px;
+        margin-bottom: 6px;
+      }
+      .hintChips {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .hint {
+        font-size: 12px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.03);
+        cursor: pointer;
+      }
+      .toast {
+        position: fixed;
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(17, 24, 39, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(238, 242, 255, 0.95);
+        padding: 10px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        box-shadow: var(--shadow);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+        z-index: 20;
+        max-width: calc(100% - 24px);
+        text-align: center;
+      }
+      .toast.show {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topbar">
+      <div class="app">
+        <div class="row">
+          <div>
+            <div class="title">مذاکره: فروش کالا</div>
+            <div class="sub">UI تستی برای Offer / Counter-Offer (نسخه‌دار، با Diff)</div>
+          </div>
+          <div class="status" id="statusChip">STATUS: Draft</div>
+        </div>
+        <div class="chips">
+          <div class="chip">Seller: You</div>
+          <div class="chip">Buyer: Counterparty</div>
+          <div class="chip" id="lastSaved">Saved: -</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app">
+      <div class="grid">
+        <!-- Seller Card -->
+        <div class="card" id="sellerCard">
+          <div class="cardHeader">
+            <div>
+              <div class="h">Seller Offer</div>
+              <div class="ver" id="sellerVer">نسخه: v1</div>
+            </div>
+            <div class="badge" id="sellerMeta">Created</div>
+          </div>
+          <div class="cardBody" id="sellerBody"></div>
+          <div class="btnRow">
+            <button class="primary" id="sendOfferBtn">Send Offer</button>
+            <button class="ghost" id="saveDraftBtn">Save Draft</button>
+            <button class="bad" id="resetBtn">Reset</button>
+          </div>
+        </div>
+
+        <!-- Buyer Card -->
+        <div class="card" id="buyerCard">
+          <div class="cardHeader">
+            <div>
+              <div class="h">Buyer Counter-Offer</div>
+              <div class="ver" id="buyerVer">نسخه: v2</div>
+            </div>
+            <div class="badge" id="buyerMeta">Waiting</div>
+          </div>
+          <div class="cardBody" id="buyerBody"></div>
+          <div class="btnRow">
+            <button class="good" id="acceptBtn">Accept Counter</button>
+            <button class="warn" id="counterBtn">Make New Counter</button>
+            <button class="bad" id="rejectBtn">Reject</button>
+          </div>
+        </div>
+
+        <!-- Diff -->
+        <div class="card">
+          <div class="cardHeader">
+            <div>
+              <div class="h">Compare / Diff</div>
+              <div class="ver">مقایسه آخرین Seller و Buyer</div>
+            </div>
+            <div class="badge" id="diffMeta">Live</div>
+          </div>
+          <div class="diff" id="diffBox"></div>
+        </div>
+
+        <!-- Notes -->
+        <div class="card">
+          <div class="cardHeader">
+            <div>
+              <div class="h">Negotiation Notes</div>
+              <div class="ver">پیام همراه پیشنهاد</div>
+            </div>
+            <div class="badge" id="noteMeta">Optional</div>
+          </div>
+          <div class="notes">
+            <textarea id="noteText" placeholder="مثلا: با اصل معامله اوکی‌ام، فقط پرداخت رو نقد می‌خوام..."></textarea>
+            <div class="templates" id="tpls"></div>
+            <div class="footerActions">
+              <button class="ghost" id="clearNoteBtn">Clear Note</button>
+              <button class="primary" id="copySummaryBtn">Copy Summary</button>
+            </div>
+            <div class="small" id="summaryHint">
+              خلاصه کپی‌شده شامل آخرین نسخه‌ها و تغییرات است (برای فرستادن در واتساپ/تلگرام/ایمیل). چون انسان‌ها عاشق کپی-پیست‌اند.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Sheet Modal -->
+    <div class="backdrop" id="backdrop">
+      <div class="sheet">
+        <div class="sheetHeader">
+          <div>
+            <div class="h">Counter Builder</div>
+            <div class="sub" style="margin: 4px 0 0">یک نسخه جدید بساز و آپشن‌ها رو عوض کن.</div>
+          </div>
+          <button class="ghost" id="closeSheetBtn" style="flex: 0; min-width: auto">بستن</button>
+        </div>
+        <div class="sheetBody">
+          <div class="ctl">
+            <label>ساخت کانتر از روی</label>
+            <select id="baseSelect">
+              <option value="buyer">Buyer v2 (آخرین کانتر)</option>
+              <option value="seller">Seller v1 (آخرین پیشنهاد)</option>
+            </select>
+          </div>
+
+          <div class="ctl">
+            <label>Price</label>
+            <input id="priceInput" inputmode="decimal" placeholder="مثلا 95" />
+          </div>
+
+          <div class="ctl">
+            <label>Payment</label>
+            <select id="paymentSelect">
+              <option value="Guarantee">Guarantee (گارانتی)</option>
+              <option value="Cash">Cash (نقد)</option>
+              <option value="LC">LC</option>
+              <option value="Mixed">Mixed (ترکیبی)</option>
+            </select>
+          </div>
+
+          <div class="ctl">
+            <label>Delivery</label>
+            <select id="deliverySelect">
+              <option value="Immediate">Immediate (فوری)</option>
+              <option value="7 days">7 days</option>
+              <option value="15 days">15 days</option>
+              <option value="30 days">30 days</option>
+              <option value="45 days">45 days</option>
+            </select>
+          </div>
+
+          <div class="helper">
+            <div class="helperTitle">Trade-offs (پیشنهادهای جبرانی)</div>
+            <div class="hintChips" id="tradeHints"></div>
+          </div>
+
+          <div class="btnRow" style="padding: 0; border-top: 0">
+            <button class="primary" id="sendCounterBtn">Send Counter Offer</button>
+            <button class="ghost" id="cancelCounterBtn">Cancel</button>
+          </div>
+
+          <div class="small">
+            نکته: تغییرها به‌صورت خودکار هایلایت می‌شن. چون اگر مجبور باشیم همه‌چی رو دستی مقایسه کنیم، تمدن سقوط می‌کنه.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      ;(function () {
+        const LS_KEY = 'negotiation_ui_state_v1'
+
+        const $ = (id) => document.getElementById(id)
+
+        const stateDefault = () => ({
+          status: 'Draft',
+          seller: {
+            version: 1,
+            price: '100',
+            payment: 'Guarantee',
+            delivery: '30 days',
+            meta: 'Created',
+          },
+          buyer: {
+            version: 2,
+            price: '95',
+            payment: 'Cash',
+            delivery: '30 days',
+            meta: 'Waiting',
+          },
+          note: '',
+          lastSavedISO: null,
+        })
+
+        function loadState() {
+          try {
+            const raw = localStorage.getItem(LS_KEY)
+            if (!raw) return stateDefault()
+            const parsed = JSON.parse(raw)
+            return { ...stateDefault(), ...parsed }
+          } catch (e) {
+            return stateDefault()
+          }
+        }
+
+        function saveState(s) {
+          s.lastSavedISO = new Date().toISOString()
+          localStorage.setItem(LS_KEY, JSON.stringify(s))
+          render()
+          toast('ذخیره شد')
+        }
+
+        function nowHM() {
+          const d = new Date()
+          const hh = String(d.getHours()).padStart(2, '0')
+          const mm = String(d.getMinutes()).padStart(2, '0')
+          return `${hh}:${mm}`
+        }
+
+        function toast(msg) {
+          const t = $('toast')
+          t.textContent = msg
+          t.classList.add('show')
+          clearTimeout(toast._tm)
+          toast._tm = setTimeout(() => t.classList.remove('show'), 1400)
+        }
+
+        let state = loadState()
+
+        function computeDiff(a, b) {
+          // returns {field: {from,to, changed}}
+          const fields = ['price', 'payment', 'delivery']
+          const out = {}
+          for (const f of fields) {
+            out[f] = { from: a[f], to: b[f], changed: String(a[f]) !== String(b[f]) }
+          }
+          return out
+        }
+
+        function tagHTML(isChanged) {
+          if (isChanged) return `<span class="tag chg">Changed</span>`
+          return `<span class="tag ok">Accepted</span>`
+        }
+
+        function fieldRow(label, value, tag, changed) {
+          return `
+      <div class="field ${changed ? 'chgField' : ''}">
+        <div class="label">${label}</div>
+        <div class="valueWrap">
+          <div class="value">${escapeHTML(value)}</div>
+          ${tag}
+        </div>
+      </div>
+    `
+        }
+
+        function escapeHTML(str) {
+          return String(str)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;')
+        }
+
+        function renderCards() {
+          // Seller: all fields shown as base (no changed tags)
+          $('sellerVer').textContent = `نسخه: v${state.seller.version}`
+          $('sellerMeta').textContent = state.seller.meta
+
+          $('sellerBody').innerHTML = `
+      ${fieldRow('Price', state.seller.price, `<span class="tag">Base</span>`, false)}
+      ${fieldRow('Payment', state.seller.payment, `<span class="tag">Base</span>`, false)}
+      ${fieldRow('Delivery', state.seller.delivery, `<span class="tag">Base</span>`, false)}
+    `
+
+          // Buyer: compare to seller for changed/accepted
+          const diff = computeDiff(state.seller, state.buyer)
+          $('buyerVer').textContent = `نسخه: v${state.buyer.version}`
+          $('buyerMeta').textContent = state.buyer.meta
+
+          $('buyerBody').innerHTML = `
+      ${fieldRow('Price', state.buyer.price, tagHTML(diff.price.changed), diff.price.changed)}
+      ${fieldRow('Payment', state.buyer.payment, tagHTML(diff.payment.changed), diff.payment.changed)}
+      ${fieldRow('Delivery', state.buyer.delivery, tagHTML(diff.delivery.changed), diff.delivery.changed)}
+    `
+        }
+
+        function renderDiff() {
+          const d = computeDiff(state.seller, state.buyer)
+          const row = (key, from, to, changed) => `
+      <div class="diffRow">
+        <div class="diffKey">${key}</div>
+        <div class="diffVal">
+          <span class="${changed ? 'tag chg' : 'tag ok'}" style="margin-left:8px">${changed ? 'Changed' : 'Same'}</span>
+          <span>${escapeHTML(from)}</span><span class="arrow">→</span><span>${escapeHTML(to)}</span>
+        </div>
+      </div>
+    `
+          $('diffBox').innerHTML = `
+      ${row('Price', d.price.from, d.price.to, d.price.changed)}
+      ${row('Payment', d.payment.from, d.payment.to, d.payment.changed)}
+      ${row('Delivery', d.delivery.from, d.delivery.to, d.delivery.changed)}
+    `
+        }
+
+        function renderTop() {
+          $('statusChip').textContent = `STATUS: ${state.status}`
+          const saved = state.lastSavedISO ? `${new Date(state.lastSavedISO).toLocaleString('fa-IR')}` : '-'
+          $('lastSaved').textContent = `Saved: ${saved}`
+          $('noteText').value = state.note || ''
+        }
+
+        function renderTemplates() {
+          const templates = [
+            'با اصل معامله اوکی‌ام، فقط پرداخت رو نقد می‌خوام.',
+            'اگر گارانتی باشه، قیمت تغییر می‌کنه.',
+            'تحویل سریع‌تر ممکنه، ولی هزینه متفاوت دارد.',
+            'قیمت قابل مذاکره است به شرط تغییر شرایط پرداخت.',
+            'این کانتر رو برای جمع‌بندی می‌فرستم، اگر موافقی نهایی کنیم.',
+          ]
+          const box = $('tpls')
+          box.innerHTML = ''
+          templates.forEach((txt) => {
+            const el = document.createElement('div')
+            el.className = 'tpl'
+            el.textContent = txt
+            el.onclick = () => {
+              const cur = $('noteText').value.trim()
+              $('noteText').value = cur ? cur + '\n' + txt : txt
+              state.note = $('noteText').value
+              saveState(state)
+            }
+            box.appendChild(el)
+          })
+        }
+
+        function buildTradeHints() {
+          // simple dynamic hints based on current payment/delivery selection
+          const payment = $('paymentSelect').value
+          const delivery = $('deliverySelect').value
+          const price = $('priceInput').value.trim() || '…'
+
+          const hints = []
+
+          if (payment === 'Cash') {
+            hints.push(`اگر Cash شد: قیمت را +2 یا +5 بالا ببر (الان ${price})`)
+            hints.push('اگر Cash شد: درصد پیش‌پرداخت 100% (بدون گارانتی)')
+          }
+          if (payment === 'Guarantee') {
+            hints.push('اگر Guarantee می‌خوای: قیمت را -1 نگه ندار، ریسک دارد')
+            hints.push('Guarantee: شرط اعتبار بانکی / مدت اعتبار مشخص شود')
+          }
+          if (payment === 'LC') {
+            hints.push('LC: زمان‌بندی آزادسازی پول را در Delivery قفل کن')
+            hints.push('LC: هزینه بانکی را طرف مقابل پرداخت کند')
+          }
+          if (delivery === 'Immediate' || delivery === '7 days') {
+            hints.push('تحویل سریع‌تر: قیمت +1 تا +3 یا حذف تخفیف')
+            hints.push('تحویل سریع‌تر: پرداخت نقد/پیش‌پرداخت بالاتر')
+          }
+          if (delivery === '45 days') {
+            hints.push('تحویل دیرتر: تخفیف -1 یا شرایط پرداخت سخت‌تر')
+            hints.push('تحویل دیرتر: قید جریمه تاخیر را اضافه کن')
+          }
+
+          // generic
+          hints.push('تغییر را با یک امتیاز جبرانی همراه کن (قانون مذاکره زنده)')
+
+          const wrap = $('tradeHints')
+          wrap.innerHTML = ''
+          hints.slice(0, 7).forEach((h) => {
+            const chip = document.createElement('div')
+            chip.className = 'hint'
+            chip.textContent = h
+            chip.onclick = () => {
+              const cur = $('noteText').value.trim()
+              $('noteText').value = cur ? cur + '\n' + '• ' + h : '• ' + h
+              state.note = $('noteText').value
+              saveState(state)
+            }
+            wrap.appendChild(chip)
+          })
+        }
+
+        function openSheet() {
+          // populate with base selection
+          $('baseSelect').value = 'buyer'
+          fillSheetFrom('buyer')
+          $('backdrop').classList.add('show')
+          buildTradeHints()
+        }
+        function closeSheet() {
+          $('backdrop').classList.remove('show')
+        }
+        function fillSheetFrom(base) {
+          const src = base === 'seller' ? state.seller : state.buyer
+          $('priceInput').value = src.price
+          $('paymentSelect').value = src.payment
+          $('deliverySelect').value = src.delivery
+        }
+
+        function render() {
+          renderTop()
+          renderCards()
+          renderDiff()
+        }
+
+        // Actions
+        $('saveDraftBtn').onclick = () => {
+          state.status = 'Draft'
+          state.seller.meta = 'Drafted'
+          saveState(state)
+        }
+
+        $('sendOfferBtn').onclick = () => {
+          state.status = 'Sent'
+          state.seller.meta = `Sent ${nowHM()}`
+          // simulate buyer is ready to respond
+          state.buyer.meta = 'Counter Ready'
+          saveState(state)
+        }
+
+        $('acceptBtn').onclick = () => {
+          state.status = 'Accepted'
+          state.buyer.meta = `Accepted ${nowHM()}`
+          toast('کانتر پذیرفته شد')
+          saveState(state)
+        }
+
+        $('rejectBtn').onclick = () => {
+          state.status = 'Rejected'
+          state.buyer.meta = `Rejected ${nowHM()}`
+          toast('رد شد')
+          saveState(state)
+        }
+
+        $('counterBtn').onclick = () => openSheet()
+
+        $('closeSheetBtn').onclick = closeSheet
+        $('cancelCounterBtn').onclick = closeSheet
+
+        $('baseSelect').onchange = (e) => {
+          fillSheetFrom(e.target.value)
+          buildTradeHints()
+        }
+        $('paymentSelect').onchange = buildTradeHints
+        $('deliverySelect').onchange = buildTradeHints
+        $('priceInput').oninput = buildTradeHints
+
+        $('sendCounterBtn').onclick = () => {
+          // create new buyer version
+          state.buyer.version = (state.buyer.version || 2) + 1
+          state.buyer.price = $('priceInput').value.trim() || state.buyer.price
+          state.buyer.payment = $('paymentSelect').value
+          state.buyer.delivery = $('deliverySelect').value
+          state.buyer.meta = `Counter Sent ${nowHM()}`
+          state.status = 'Countered'
+          saveState(state)
+          closeSheet()
+          toast('کانتر ارسال شد')
+        }
+
+        $('noteText').addEventListener('input', () => {
+          state.note = $('noteText').value
+          // save lightly (debounced)
+          clearTimeout(render._deb)
+          render._deb = setTimeout(() => saveState(state), 450)
+        })
+
+        $('clearNoteBtn').onclick = () => {
+          $('noteText').value = ''
+          state.note = ''
+          saveState(state)
+        }
+
+        $('copySummaryBtn').onclick = async () => {
+          const diff = computeDiff(state.seller, state.buyer)
+          const lines = []
+          lines.push('📌 Summary (Offer/Counter)')
+          lines.push(`Status: ${state.status}`)
+          lines.push('')
+          lines.push(
+            `Seller v${state.seller.version}: Price=${state.seller.price}, Payment=${state.seller.payment}, Delivery=${state.seller.delivery}`,
+          )
+          lines.push(
+            `Buyer  v${state.buyer.version}: Price=${state.buyer.price}, Payment=${state.buyer.payment}, Delivery=${state.buyer.delivery}`,
+          )
+          lines.push('')
+          lines.push('Changes:')
+          for (const k of ['price', 'payment', 'delivery']) {
+            const d = diff[k]
+            lines.push(`- ${k}: ${d.from} -> ${d.to} ${d.changed ? '(Changed)' : '(Same)'}`)
+          }
+          if (state.note && state.note.trim()) {
+            lines.push('')
+            lines.push('Notes:')
+            lines.push(state.note.trim())
+          }
+          const text = lines.join('\n')
+
+          try {
+            await navigator.clipboard.writeText(text)
+            toast('خلاصه کپی شد')
+          } catch (e) {
+            // fallback: select text in textarea
+            $('noteText').value = text
+            $('noteText').focus()
+            $('noteText').select()
+            toast('کپی خودکار نشد، متن انتخاب شد')
+          }
+        }
+
+        $('resetBtn').onclick = () => {
+          localStorage.removeItem(LS_KEY)
+          state = stateDefault()
+          render()
+          toast('ریست شد')
+        }
+
+        // Init
+        renderTemplates()
+        render()
+      })()
+    </script>
+  </body>
+</html>

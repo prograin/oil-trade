@@ -6,16 +6,18 @@ export default defineEventHandler(async (event) => {
     const userId = user.id
     const db = event.context.cloudflare.env.DB
 
-    await db
+    const negotiationFieldJson = Array.isArray(data.negotiation_field) ? JSON.stringify(data.negotiation_field) : '[]'
+
+    const res = await db
       .prepare(
         `
     INSERT INTO offers (
       user_id, document_type, product, api, sulfur, quantity, deal_type,
       delivery_term, delivery_detail, transfer_zone,
       benchmark_based, payment_term, operation_cost,
-      down_payment, price, validity
+      down_payment, price, validity ,negotiation_field
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `,
       )
       .bind(
@@ -35,6 +37,7 @@ export default defineEventHandler(async (event) => {
         data.down_payment,
         data.price,
         data.validity,
+        negotiationFieldJson,
       )
       .run()
 

@@ -1,0 +1,22 @@
+Status: (dashboard,Explorer)
+	closed
+	Sold-out
+	Active (default)
+	Suspended
+	Expired
+	Booked
+
+KYC: (dashboard,Explorer selected card)
+	True
+	False
+
+verified
+
+Explorer title on top of the window
+
+KYC user (mandate company X)
+POP	proof of pruduct (seller) available/not Available 
+
+POF	proof of found (buyer)
+BCL	Bank commision letter 
+To be Announced

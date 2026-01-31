@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  console.log('asdasdasdasd')
   try {
     const db = event.context.cloudflare.env.DB
 
@@ -25,11 +26,12 @@ export default defineEventHandler(async (event) => {
       VALUES (?, ?, ?)
       `
 
-    await db.prepare(query).bind(offerIdParam, session.user.id, data.value).run()
+    const res = await db.prepare(query).bind(offerIdParam, session.user.id, data.value).run()
 
     return {
       ok: true,
       message: 'Your bid has been created.',
+      bid_id: res.meta.last_row_id,
     }
   } catch (error) {
     throw createError({

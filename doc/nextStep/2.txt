@@ -1,0 +1,28 @@
+origin:
+Oman
+Malaysia
+Singapore
+Iraq
+Russian
+Iran
+
+
+
+down payment 
+SBLC  -add
+side of down payment adding "Percent"
+
+
+port:
+Rizhao,Donjiako,Donging
+
+cargo current position:
+Oman
+Malaysia
+Singapore
+Iraq
+Russian
+Iran
+
+price go to side of down payment
+adding port to main showing offers nd bids

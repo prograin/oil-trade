@@ -1,0 +1,67 @@
+------------------------------------------------------------------------------------
+1-Negotitation:
+    Logic
+    - Click on bid open negotiation and history of that
+    - Making negotiation
+    - Accept or deny suggest
+    - Confirmed negotiation 
+        - Next step is to send message to other user and check by seller or buyer and he will accept it again and then next step
+    - Remove suggest by owner of suggestion
+    For later step:
+        - Limit making suggestion and more than x time user must buy a plan
+
+    DB
+    - Add negotiation to suggestions DB
+    - Add bid to bids DB
+    - Save suggest as json stringify
+
+    UI
+    - Showing negotiation on dashboard
+    - Showing negotiation on Explorer
+    - Refining Negotiation ui
+
+    Estimation Time
+    *(5 days has been spent)
+    - 2 weeks 
+    
+------------------------------------------------------------------------------------
+2-Adding Status:
+    Logic
+    - Showing offer status that user see the offer has been closed or so on ...
+
+    DB
+    - Adding to offer db , Status =  (closed, sold-out, ...)
+
+    UI
+    - Showing in Explorer
+    - Showing in dashboard
+
+    Estimation Time
+    - 4 days
+    
+------------------------------------------------------------------------------------
+3-Adding KYC
+    Logic
+    - user has been kyc or not
+
+    DB
+    - Adding to user db , True/False
+
+    UI
+    - Showing on dashboard on profile card
+    - Showing on Explorer side of user namn
+    - Editing (dashboard, Selected card on Explorer)
+
+    Estimation Time
+    - 3 days
+
+------------------------------------------------------------------------------------
+4-Refining UI
+    Logic
+    - Remove some data from offer
+    - Edit Add offer page
+    - Edit some stuff on pages like header
+    ...
+
+    Estimation Time
+    - 3 days
