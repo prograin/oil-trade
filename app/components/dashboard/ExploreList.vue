@@ -2,6 +2,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { XIcon, ChevronDownIcon } from 'lucide-vue-next'
+import { negotiationFieldToLabelValue } from '~/utils/field-mapper'
 
 const props = defineProps({
   // each item: { id, product, nickname, price/target_price, quantity, deal_type, delivery_term, payment_term, validity, ... }
@@ -42,6 +43,8 @@ const excludedDetailKeys = new Set([
   'id',
   'user_id',
   'is_active',
+  'negotiation_field',
+  'type',
   'created_at', // rendered in the bids section instead
 ])
 
@@ -86,6 +89,12 @@ const detailFields = computed(() => {
     }))
 })
 
+const selectedBids = computed(() => {
+  const id = selectedItem.value?.id
+  if (!id) return []
+  return bidsById.value[id] ?? []
+})
+
 async function openDetails(item) {
   selectedItem.value = item
   showBids.value = false
@@ -112,6 +121,21 @@ async function openDetails(item) {
 
 function closeDetails() {
   selectedItem.value = null
+}
+
+async function refreshSelectedBids() {
+  const offerId = selectedItem.value?.id
+  if (!offerId) return
+
+  // If dashboard passes inline bids, rely on parent refresh
+  if (!props.fetchBidsOnOpen) {
+    await props.refresh?.()
+    return
+  }
+
+  // Explore refresh: fetch again
+  const updated = await $fetch(`/api/offer/${offerId}/bids`)
+  bidsById.value[offerId] = updated.results || []
 }
 
 async function onConfirmBid(bidId) {
@@ -207,40 +231,17 @@ watch(selectedItem, (v) => {
           </div>
 
           <!-- BIDS (only offers typically) -->
-          <template v-if="mode === 'Offers' && (bidsById?.[selectedItem?.id]?.length || 0) > 0">
-            <div v-if="!user" class="bids-guest">
-              <div class="bids-guest-card">
-                <p class="bids-guest-title">Bids</p>
-                <p class="bids-guest-text">You must be signed in to view bids.</p>
-                <div class="bids-guest-actions">
-                  <NuxtLink to="/login" class="bids-guest-btn">Sign in</NuxtLink>
-                </div>
-              </div>
-            </div>
-
-            <div v-else class="bids-section">
-              <button type="button" class="bids-header" @click="showBids = !showBids">
-                <span class="bids-title">
-                  Bids
-                  <span class="bids-count">{{ (bidsById[selectedItem.id] || []).length }}</span>
-                </span>
-                <ChevronDownIcon class="w-5 h-5 transition-transform" :class="{ 'rotate-180': showBids }" />
-              </button>
-
-              <transition name="fade">
-                <div v-if="showBids" class="bids-body">
-                  <div v-for="bid in bidsById[selectedItem.id] || []" :key="bid.id" class="bid-row">
-                    <span class="bid-user">{{ bid.nickname || bid.bidder || '-' }}</span>
-                    <span class="bid-price">{{ bid.value }} USD/BBL</span>
-                    <span class="bid-time">{{ bid.created_at }}</span>
-
-                    <button v-if="enableConfirm" :disabled="bid.is_confirmed" class="bid-btn" @click.stop="onConfirmBid(bid.id)">
-                      {{ bid.is_confirmed ? 'Confirmed' : 'Confirm' }}
-                    </button>
-                  </div>
-                </div>
-              </transition>
-            </div>
+          <template v-if="mode === 'Offers' && selectedBids.length > 0">
+            <BidsSection
+              :offerId="selectedItem.id"
+              :offerUserId="selectedItem.user_id"
+              :user="user"
+              :negotiationField="negotiationFieldToLabelValue(selectedItem.negotiation_field)"
+              :quantity="selectedItem.quantity"
+              :price="selectedItem.price"
+              :product="selectedItem.product"
+              @submitted="() => {}"
+            />
           </template>
         </div>
       </div>

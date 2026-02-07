@@ -1,5 +1,10 @@
+import { getBidOwnership, assertBidOrOfferOwner } from '../../../utils/authBid'
+
 export default defineEventHandler(async (event) => {
   const bidIdParam = getRouterParam(event, 'id')
+  const db = event.context.cloudflare.env.DB
+  const user = event.context.user
+  const userId = user.id
 
   if (!bidIdParam) {
     throw createError({
@@ -9,13 +14,15 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const { bidOwnerId, offerOwnerId } = await getBidOwnership(db, bidIdParam!)
+  assertBidOrOfferOwner({ userId, bidOwnerId, offerOwnerId })
+
   const body = await readBody(event)
 
   const fields: string[] = []
   const values: any[] = []
 
   try {
-    const db = event.context.cloudflare.env.DB
     // allow updating bid value
     if (body.value !== undefined) {
       fields.push('value = ?')

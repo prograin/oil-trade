@@ -1,6 +1,7 @@
 #INFO
 . We just use one db for development and production
 . in Production cloudflare create deafult place for d1 and config
+. compatibilityDate must be added to nuxt config <<<--- so importnat
 
 #Installing and building
 npx pnpm -D install wrangler                                            # Install dev wrangler for interact with cloudflare

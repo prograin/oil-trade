@@ -3,10 +3,6 @@ export default defineEventHandler(async (event) => {
   const data = await readBody(event)
   const offerIdParam = getRouterParam(event, 'id')
 
-  if (!session.user) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized', message: 'You must be logged in to access this page' })
-  }
-
   if (!offerIdParam) {
     throw createError({
       statusCode: 400,
@@ -15,7 +11,6 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  console.log('asdasdasdasd')
   try {
     const db = event.context.cloudflare.env.DB
 

@@ -6,7 +6,7 @@
       "previewLimit": 50,
       "driver": "SQLite",
       "name": "oil-db",
-      "database": "${workspaceFolder:oil-app-nuxt}/.wrangler/state/v3/d1/miniflare-D1DatabaseObject/8a469638e31b5bee3058cbb900855a9dfd17a88c0066a392d2510cb9c357ba74.sqlite"
+      "database": "${workspaceFolder:oil-trade}/.wrangler/state/v3/d1/miniflare-D1DatabaseObject/4e8cd1a0f55373fe94794ea697290179f6992b40175eb8389b9b0b86e5b149c5.sqlite"
     }
   ]
 }

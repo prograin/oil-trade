@@ -29,7 +29,6 @@ export default defineEventHandler(async (event) => {
       .bind(bidIdParam)
       .all()
 
-    console.log(results)
     return { success: true, results }
   } catch (err) {
     setResponseStatus(event, 500)

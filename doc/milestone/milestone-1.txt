@@ -21,11 +21,11 @@
     - Refining Negotiation ui
 
     Estimation Time
-    *(5 days has been spent)
-    - 2 weeks 
+    - Development : 12 days (5 days has been spent)
+    - Bug fix : 3 days
     
 ------------------------------------------------------------------------------------
-2-Adding Status:
+2-Adding Offer Status:
     Logic
     - Showing offer status that user see the offer has been closed or so on ...
 

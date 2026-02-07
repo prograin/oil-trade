@@ -1,6 +1,7 @@
 <template>
   <NuxtLayout>
     <NuxtPage />
+    <GeneralWarningModal />
     <GeneralErrorModal />
     <GeneralQuestionModal />
     <GeneralSuccessModal />
